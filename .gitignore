@@ -1,8 +1,12 @@
 *~
 *Makefile.in
+*Makefile
 *.o
 config.*
-*/.deps/*
-*/.libs/*
+*/.deps/
+*/.libs/
+*/*/.deps/
+*/*/.libs/
 *.la
 *.lo
+test/xon_objxx_rw

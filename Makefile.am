@@ -1,2 +1,2 @@
 ACLOCAL_AMFLAGS=-I m4
-SUBDIRS=test
+SUBDIRS=libxon-obj test

@@ -10,7 +10,7 @@ int main(void) {
   xon_obj_builder xb = xon_obj_builder_new();
 
   // Construct the first object
-  xon_obj_builder_add(xb, "key", "value");
+  xon_obj_builder_add_string(xb, "key", "value");
   // Build the object and reset the builder
   void* obj = xon_obj_builder_finish(xb);
   printf("First object");
@@ -19,7 +19,7 @@ int main(void) {
   free(obj);  
 
   // Construct the second object, 
-  xon_obj_builder_add(xb, "key", "newvalue");
+  xon_obj_builder_add_string(xb, "key", "newvalue");
   // Reuse the obj variable
   obj = xon_obj_builder_finish(xb);
   printf("Second object");

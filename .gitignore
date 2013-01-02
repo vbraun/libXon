@@ -9,4 +9,7 @@ config.*
 */*/.libs/
 *.la
 *.lo
+*.tar.gz
+*/doc/output
+libtool
 test/xon_objxx_rw

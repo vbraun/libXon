@@ -774,9 +774,7 @@ CXXFLAGS
 CCC
 CPP
 CXXCPP'
-ac_subdirs_all='
-    libxon-obj
-'
+ac_subdirs_all='libxon-obj'
 
 # Initialize some variables set by options.
 ac_init_help=

@@ -22,12 +22,15 @@
 #elif ALIGN_BYTES == 16
 #define ALIGN_BYTES_LOG2 4   /* 128 bit */
 #else
-  #error "Unknown alignment"
+#error "Unknown alignment"
 #endif
 
 
-#define ALIGN_ROUND_UP(x) \
+#define ALIGN_ROUND_UP_PTR(x) \
   (char*)(((uintptr_t)x + ALIGN_BYTES - 1) & ~ (ALIGN_BYTES-1))
+
+#define ALIGN_ROUND_UP_SIZE(x) \
+  (((size_t)x + ALIGN_BYTES - 1) & ~ (ALIGN_BYTES-1))
 
 
 #ifdef WORDS_BIGENDIAN

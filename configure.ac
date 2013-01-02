@@ -11,9 +11,7 @@ AC_CONFIG_FILES([
     Makefile
     test/Makefile
 ])
-AC_CONFIG_SUBDIRS([
-    libxon-obj
-])
+AC_CONFIG_SUBDIRS([libxon-obj])
 
 AM_INIT_AUTOMAKE
 AC_OUTPUT

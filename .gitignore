@@ -10,6 +10,8 @@ config.*
 *.la
 *.lo
 *.tar.gz
-*/doc/output
+doc/html
+doc/latex
+libxon-obj/doc
 libtool
 test/xon_objxx_rw

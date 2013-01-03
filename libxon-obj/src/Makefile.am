@@ -1,4 +1,4 @@
-lib_LTLIBRARIES = libxon-obj.la libxon-obj++.la
+lib_LTLIBRARIES = libxon-obj.la libxon-objxx.la
 
 nobase_include_headers = \
 	xon/constants.h xon/object.h xon/object.hh
@@ -14,10 +14,10 @@ libxon_obj_la_CFLAGS = \
 
 
 
-libxon_obj___la_SOURCES = \
+libxon_objxx_la_SOURCES = \
 	object.cc xon/object.hh xon/object.h macros.h align.h xon/constants.h
 
-libxon_obj___la_CFLAGS = \
+libxon_objxx_la_CXXFLAGS = \
 	-DBUILDING_XON_LIBRARY_CPP \
 	-DCONFIG_H $(CFLAG_VISIBILITY)
 

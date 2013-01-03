@@ -20,7 +20,7 @@ int main(void) {
   void* obj = xon_obj_builder_get(xb);
   printf("\nFirst object\n");
   xon_obj_print(obj);
-  printf("Size = %d bytes\n\n", xon_obj_size(obj));
+  printf("Size = %u bytes\n\n", xon_obj_size(obj));
   // We are responsible to free the memory used by obj
   free(obj);  
 
@@ -36,7 +36,7 @@ int main(void) {
   obj = xon_obj_builder_get(xb);
   printf("Second object\n");
   xon_obj_print(obj);
-  printf("Size = %d bytes\n\n", xon_obj_size(obj));
+  printf("Size = %u bytes\n\n", xon_obj_size(obj));
   // We are again responsible to free the memory used by obj
   free(obj);
 

@@ -4,8 +4,10 @@
 #include <malloc.h>
 #include <assert.h>
 
-#include "xon/object.h"
 #include "macros.h"
+#include "xon/object.h"
+
+NAMESPACE_XON_C_API_BEGIN
 
 /*******************************************************
  *
@@ -19,7 +21,7 @@ char magic[2*ALIGN_BYTES];
 CONSTRUCTOR_C
 void init() 
 {
-  memset(magic, 0, 2*ALIGN_BYTES);
+  memset(magic, 'a', 2*ALIGN_BYTES);
   *((int32_t*)magic) = XON_MAGIC;
 }
 
@@ -43,7 +45,7 @@ xon_obj_builder xon_obj_builder_new()
   void *buf = malloc(size);
   if (buf == NULL)
     return NULL;
- xon_obj_builder_new_with_buf(buf, size, true);
+  xon_obj_builder_new_with_buf(buf, size, true);
 }
 
 
@@ -53,10 +55,11 @@ xon_obj_builder xon_obj_builder_new_with_buf
 {
   /* Minimal object: magic + size + zero */
   assert(size >= 3*ALIGN_BYTES);
-  xon_obj_builder builder = malloc(sizeof(xon_obj_builder_struct));
+  xon_obj_builder builder = 
+    (xon_obj_builder)malloc(sizeof(xon_obj_builder_struct));
   if (builder == NULL)
     return NULL;
-  memcpy(magic, initial_buffer, 2*ALIGN_BYTES);
+  memcpy(initial_buffer, magic, 2*ALIGN_BYTES);
 
   builder->initial_buf = (char*)initial_buffer;
   builder->initial_capacity = size;
@@ -277,9 +280,9 @@ xon_obj_reader reader_new_realloc(xon_obj_reader reader, size_t n)
   const int N = 32;
   if (n % N != 0)
     return reader;
-  reader->types  = realloc(reader->types,  sizeof(int)   * (n+N));
-  reader->keys   = realloc(reader->keys,   sizeof(char*) * (n+N));
-  reader->values = realloc(reader->values, sizeof(char*) * (n+N));
+  reader->types  = (int*)  realloc(reader->types,  sizeof(int)   * (n+N));
+  reader->keys   = (char**)realloc(reader->keys,   sizeof(char*) * (n+N));
+  reader->values = (char**)realloc(reader->values, sizeof(char*) * (n+N));
   if (reader->types == NULL || reader->keys == NULL || reader->values == NULL) {
     xon_obj_reader_delete(reader);
     return NULL;
@@ -305,7 +308,7 @@ xon_obj_reader xon_obj_reader_new(xon_obj obj)
     (xon_obj_reader)malloc(sizeof(xon_obj_reader_struct));
   if (reader == NULL)
     return NULL;
-  reader->obj = obj;
+  reader->obj = (char*)obj;
   reader->types = NULL;
   reader->keys = NULL;
   reader->values = NULL;
@@ -565,3 +568,5 @@ char* xon_obj_string_indent
   return output;
 }
 
+
+NAMESPACE_XON_C_API_END

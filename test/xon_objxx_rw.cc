@@ -5,6 +5,7 @@
 #include <xon/object.hh>
 
 
+
 int test_c_api()
 {
   using namespace xon::c_api;
@@ -54,7 +55,8 @@ int test_cplusplus_api()
   using std::endl;
 
   // We need only one object builder
-  xon::obj_builder xb();
+  xon::obj_builder xb;
+  xb.get();
 
   // Construct the first object
   xb.add("key", "value");
@@ -72,13 +74,13 @@ int test_cplusplus_api()
 
   // Construct the second object, 
   xb.add("key",   "0123456");
-  xb.add(xb, "key2",  "01234567");
-  xb.add(xb, "key3",  "012345678");
-  xb.add(xb, "key4",  "newvalue4");
-  xb.add(xb, "float", 3.1415);
-  xb.add(xb, "int",   123);
-  xb.add(xb, "large", (int64_t)(1) << 40);
-  xon::obj obj = xb.get();
+  xb.add("key2",  "01234567");
+  xb.add("key3",  "012345678");
+  xb.add("key4",  "newvalue4");
+  xb.add("float", 3.1415);
+  xb.add("int",   123);
+  xb.add("large", (int64_t)(1) << 40);
+  obj = xb.get();
   cout << "Second object" 
        << endl << obj
        << "Size = " << obj.size() << " bytes" 
@@ -89,5 +91,6 @@ int test_cplusplus_api()
 
 int main(void) {
   test_c_api();
+  test_cplusplus_api();
   return 0;
 }

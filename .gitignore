@@ -12,7 +12,6 @@ config.*
 *.tar.gz
 doc/html
 doc/latex
-libxon-obj/doc
 libtool
 test/xon_obj_rw
 test/xon_objxx_rw

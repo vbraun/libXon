@@ -2,16 +2,25 @@ AC_PREREQ([2.66])
 AC_INIT([libxon], [1.0])
 
 AC_PROG_CC
+AC_PROG_CC_C99
 AC_PROG_CXX
+
+AC_C_BIGENDIAN
+
 LT_INIT
+gl_VISIBILITY
 
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([.])
+AC_CONFIG_HEADERS([src/config.h])
 AC_CONFIG_FILES([
     Makefile
+    src/Makefile
     test/Makefile
 ])
-AC_CONFIG_SUBDIRS([libxon-obj])
+
+AC_CHECK_ALIGNOF(int)
+AC_CHECK_ALIGNOF(double)
 
 AM_INIT_AUTOMAKE
 AC_OUTPUT

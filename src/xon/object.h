@@ -31,6 +31,11 @@ enum XON_STATUS {
 };
 
 
+/*! @brief A type for the XON_STATUS enum
+ */
+typedef enum XON_STATUS xon_status;
+
+
 /*! @brief A pointer to a binary object
  */
 typedef void* xon_obj;

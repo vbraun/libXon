@@ -1,14 +1,11 @@
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
+#include <stdio.h>
+#include <malloc.h>
 
-#include <xon/object.hh>
+#include <xon/object.h>
 
 
-int test_c_api()
-{
-  using namespace xon::c_api;
-  
+
+int main(void) {
   // We need only one object builder
   xon_obj_builder xb = xon_obj_builder_new();
 
@@ -20,7 +17,7 @@ int test_c_api()
   xon_obj_builder_add_int32 (xb, "int",   123);
   xon_obj_builder_add_int64 (xb, "large", (int64_t)(1) << 40);
   // Build the object and reset the builder
-  xon_obj obj = xon_obj_builder_get(xb);
+  void* obj = xon_obj_builder_get(xb);
   printf("\nFirst object\n");
   xon_obj_print(obj);
   printf("Size = %d bytes\n\n", xon_obj_size(obj));
@@ -45,49 +42,6 @@ int test_c_api()
 
   // Delete the object builder that we used to build two objects
   xon_obj_builder_delete(xb);
-}
 
-
-int test_cplusplus_api() 
-{
-  using std::cout;
-  using std::endl;
-
-  // We need only one object builder
-  xon::obj_builder xb();
-
-  // Construct the first object
-  xb.add("key", "value");
-  xb.add("key2", "value2");
-  xb.add("key3", "value3");
-  xb.add("float", 3.1415);
-  xb.add("int",   123);
-  xb.add("large", (int64_t)(1) << 40);
-  // Build the object and reset the builder
-  xon::obj obj(xb);
-  cout << endl << "First object" 
-       << endl << obj
-       << "Size = " << obj.size() << " bytes" 
-       << endl << endl;
-
-  // Construct the second object, 
-  xb.add("key",   "0123456");
-  xb.add(xb, "key2",  "01234567");
-  xb.add(xb, "key3",  "012345678");
-  xb.add(xb, "key4",  "newvalue4");
-  xb.add(xb, "float", 3.1415);
-  xb.add(xb, "int",   123);
-  xb.add(xb, "large", (int64_t)(1) << 40);
-  xon::obj obj = xb.get();
-  cout << "Second object" 
-       << endl << obj
-       << "Size = " << obj.size() << " bytes" 
-       << endl << endl;
-
-} // xb is destroyed here
-
-
-int main(void) {
-  test_c_api();
   return 0;
 }

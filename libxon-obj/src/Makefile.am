@@ -1,12 +1,23 @@
-lib_LTLIBRARIES = libxon-obj.la
+lib_LTLIBRARIES = libxon-obj.la libxon-obj++.la
 
 nobase_include_headers = \
-	xon/object.h
+	xon/constants.h xon/object.h xon/object.hh
 
 
 libxon_obj_la_SOURCES = \
-	object.c xon/object.h macros.h
+	object.c xon/object.h macros.h align.h xon/constants.h
 
 libxon_obj_la_CFLAGS = \
-	-DBUILDING_XON_LIBRARY \
+	-DBUILDING_XON_LIBRARY_C \
 	-DCONFIG_H $(CFLAG_VISIBILITY)
+
+
+
+
+libxon_obj___la_SOURCES = \
+	object.cc xon/object.hh xon/object.h macros.h align.h xon/constants.h
+
+libxon_obj___la_CFLAGS = \
+	-DBUILDING_XON_LIBRARY_CPP \
+	-DCONFIG_H $(CFLAG_VISIBILITY)
+

@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include <malloc.h>
@@ -17,7 +16,7 @@
 char magic[2*ALIGN_BYTES];
 
 
-CONSTRUCTOR
+CONSTRUCTOR_C
 void init() 
 {
   memset(magic, 0, 2*ALIGN_BYTES);
@@ -25,7 +24,7 @@ void init()
 }
 
 
-DESTRUCTOR
+DESTRUCTOR_C
 void fini() 
 {
 }
@@ -37,7 +36,7 @@ void fini()
  *
  *******************************************************/
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 xon_obj_builder xon_obj_builder_new()
 {
   const int size = 4096;
@@ -48,7 +47,7 @@ xon_obj_builder xon_obj_builder_new()
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 xon_obj_builder xon_obj_builder_new_with_buf
 (void *initial_buffer, size_t size, bool free_buffer)
 {
@@ -71,8 +70,8 @@ xon_obj_builder xon_obj_builder_new_with_buf
 }
 
 
-EXPORTED_SYMBOL
-void xon_obj_builder_free(xon_obj_builder builder)
+EXPORTED_SYMBOL_C
+void xon_obj_builder_delete(xon_obj_builder builder)
 {
   if (builder->buf != builder->initial_buf)
     free(builder->buf);
@@ -130,7 +129,7 @@ ensure_capacity(xon_obj_builder builder, size_t additional_size)
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 enum XON_STATUS 
 xon_obj_builder_add_string
 (xon_obj_builder builder, const char *key, const char *value)
@@ -156,7 +155,7 @@ xon_obj_builder_add_string
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 enum XON_STATUS 
 xon_obj_builder_add_double
 (xon_obj_builder builder, const char *key, double value)
@@ -182,7 +181,7 @@ xon_obj_builder_add_double
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 enum XON_STATUS 
 xon_obj_builder_add_int32
 (xon_obj_builder builder, const char *key, int32_t value)
@@ -208,7 +207,7 @@ xon_obj_builder_add_int32
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 enum XON_STATUS 
 xon_obj_builder_add_int64
 (xon_obj_builder builder, const char *key, int64_t value)
@@ -234,8 +233,8 @@ xon_obj_builder_add_int64
 }
 
 
-EXPORTED_SYMBOL
-xon_obj xon_obj_builder_finish(xon_obj_builder builder)
+EXPORTED_SYMBOL_C
+xon_obj xon_obj_builder_get(xon_obj_builder builder)
 {
   ptrdiff_t length = builder->end - builder->buf;
   xon_obj obj = (xon_obj)malloc(length + ALIGN_BYTES);
@@ -282,14 +281,14 @@ xon_obj_reader reader_new_realloc(xon_obj_reader reader, size_t n)
   reader->keys   = realloc(reader->keys,   sizeof(char*) * (n+N));
   reader->values = realloc(reader->values, sizeof(char*) * (n+N));
   if (reader->types == NULL || reader->keys == NULL || reader->values == NULL) {
-    xon_obj_reader_free(reader);
+    xon_obj_reader_delete(reader);
     return NULL;
   }
   return reader;
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 xon_obj_reader xon_obj_reader_new(xon_obj obj) 
 {
   char* pos = (char*)obj;
@@ -343,7 +342,7 @@ xon_obj_reader xon_obj_reader_new(xon_obj obj)
       break;
     default:
       fprintf(stderr, "libxon-obj: Unsupported type: %x\n", type);
-      xon_obj_reader_free(reader);
+      xon_obj_reader_delete(reader);
       return NULL;
     }
     // printf("#%d: type=0x%x 0x%x %s 0x%x\n", n, 
@@ -359,28 +358,28 @@ xon_obj_reader xon_obj_reader_new(xon_obj obj)
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 int xon_obj_reader_count(xon_obj_reader reader)
 {
   return reader->n_elements;
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 int xon_obj_reader_type(xon_obj_reader reader, int pos)
 {
   return reader->types[pos];
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 const char* xon_obj_reader_key(xon_obj_reader reader, int pos)
 {
   return reader->keys[pos];
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 void* xon_obj_reader_get_value(xon_obj_reader reader, int pos)
 {
   return reader->values[pos];
@@ -398,7 +397,7 @@ bool check_type(xon_obj_reader reader, int pos, int type)
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 const char* xon_obj_reader_get_string(xon_obj_reader reader, int pos)
 {
   check_type(reader, pos, XON_ELEMENT_STRING);
@@ -406,7 +405,7 @@ const char* xon_obj_reader_get_string(xon_obj_reader reader, int pos)
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 double xon_obj_reader_get_double(xon_obj_reader reader, int pos)
 {
   check_type(reader, pos, XON_ELEMENT_DOUBLE);
@@ -414,7 +413,7 @@ double xon_obj_reader_get_double(xon_obj_reader reader, int pos)
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 int32_t xon_obj_reader_get_int32(xon_obj_reader reader, int pos)
 {
   check_type(reader, pos, XON_ELEMENT_INT32);
@@ -422,7 +421,7 @@ int32_t xon_obj_reader_get_int32(xon_obj_reader reader, int pos)
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 int64_t xon_obj_reader_get_int64(xon_obj_reader reader, int pos)
 {
   check_type(reader, pos, XON_ELEMENT_INT64);
@@ -430,8 +429,8 @@ int64_t xon_obj_reader_get_int64(xon_obj_reader reader, int pos)
 }
 
 
-EXPORTED_SYMBOL
-void xon_obj_reader_free(xon_obj_reader reader)
+EXPORTED_SYMBOL_C
+void xon_obj_reader_delete(xon_obj_reader reader)
 {
   free(reader->types);
   free(reader->keys);
@@ -446,7 +445,7 @@ void xon_obj_reader_free(xon_obj_reader reader)
  *
  *******************************************************/
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 void xon_obj_print(xon_obj obj)
 {
   char *output = xon_obj_string(obj);
@@ -459,21 +458,21 @@ void xon_obj_print(xon_obj obj)
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 size_t xon_obj_size(xon_obj obj)
 {
   return *(int*)((char*)obj + ALIGN_BYTES);
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 char* xon_obj_string(xon_obj obj)
 {
   return xon_obj_string_indent(obj, true, "");
 }
 
 
-EXPORTED_SYMBOL
+EXPORTED_SYMBOL_C
 char* xon_obj_string_indent
 (xon_obj obj, bool address, const char *prefix)
 {
@@ -562,7 +561,7 @@ char* xon_obj_string_indent
   for (int i=0; i<=n+1; i++)
     free(lines[i]);
   free(lines);
-  xon_obj_reader_free(reader);
+  xon_obj_reader_delete(reader);
   return output;
 }
 

@@ -1,58 +1,62 @@
 #ifndef XON_MACROS__H
 #define XON_MACROS__H
 
-#include "config.h"
+#include "align.h"
 
+// Build the C version of the library
 
-/* ALIGN_BYTES is a power of two */
-/* ALIGN_BYTES_LOG2 is its log_2 */
-
-
-#if ALIGNOF_DOUBLE > ALIGNOF_INT
-#define ALIGN_BYTES ALIGNOF_DOUBLE
-#else
-#define ALIGN_BYTES ALIGNOF_INT
-#endif
-
-
-#if ALIGN_BYTES == 4
-#define ALIGN_BYTES_LOG2 2   /* 32 bit */
-#elif ALIGN_BYTES == 8
-#define ALIGN_BYTES_LOG2 3   /* 64 bit */
-#elif ALIGN_BYTES == 16
-#define ALIGN_BYTES_LOG2 4   /* 128 bit */
-#else
-#error "Unknown alignment"
-#endif
-
-
-#define ALIGN_ROUND_UP_PTR(x) \
-  (char*)(((uintptr_t)x + ALIGN_BYTES - 1) & ~ (ALIGN_BYTES-1))
-
-#define ALIGN_ROUND_UP_SIZE(x) \
-  (((size_t)x + ALIGN_BYTES - 1) & ~ (ALIGN_BYTES-1))
-
-
-#ifdef WORDS_BIGENDIAN
-#define XON_MAGIC -(ALIGN_BYTES_LOG2 + 0x1000)
-#else
-#define XON_MAGIC -(ALIGN_BYTES_LOG2)
-#endif
-
-
-#if BUILDING_XON_LIBRARY && HAVE_VISIBILITY
-#define EXPORTED_SYMBOL __attribute__((__visibility__("default")))
+#if BUILDING_XON_LIBRARY_C && HAVE_VISIBILITY
+#define EXPORTED_SYMBOL_C __attribute__((__visibility__("default")))
 #elif defined _MSC_VER
-#define EXPORTED_SYMBOL __declspec(dllexport)
+#define EXPORTED_SYMBOL_C __declspec(dllexport)
 #elif defined _MSC_VER
-#define EXPORTED_SYMBOL __declspec(dllimport)
+#define EXPORTED_SYMBOL_C __declspec(dllimport)
 #else
-#define EXPORTED_SYMBOL
+#define EXPORTED_SYMBOL_C
+#endif
+
+#if BUILDING_XON_LIBRARY_C
+#define CONSTRUCTOR_C __attribute__((constructor)) 
+#define DESTRUCTOR_C  __attribute__((destructor))  
+#else
+#define CONSTRUCTOR_C
+#define DESTRUCTOR_C
+#endif
+
+#if BUILDING_XON_LIBRARY_C
+#define EXPORTED_SYMBOL_CPP error()
+#define CONSTRUCTOR_CPP error()
+#define DESTRUCTOR_CPP error()
 #endif
 
 
-#define CONSTRUCTOR __attribute__((constructor)) 
-#define DESTRUCTOR  __attribute__((destructor))  
+// Build the C++ version of the library
+
+#if BUILDING_XON_LIBRARY_CPP && HAVE_VISIBILITY
+#define EXPORTED_SYMBOL_CPP __attribute__((__visibility__("default")))
+#elif defined _MSC_VER
+#define EXPORTED_SYMBOL_CPP __declspec(dllexport)
+#elif defined _MSC_VER
+#define EXPORTED_SYMBOL_CPP __declspec(dllimport)
+#else
+#define EXPORTED_SYMBOL_CPP
+#endif
+
+#if BUILDING_XON_LIBRARY_CPP
+#define CONSTRUCTOR_CPP __attribute__((constructor)) 
+#define DESTRUCTOR_CPP  __attribute__((destructor))  
+#else
+#define CONSTRUCTOR_CPP
+#define DESTRUCTOR_CPP
+#endif
+
+#if BUILDING_XON_LIBRARY_CPP
+#define EXPORTED_SYMBOL_C
+#define CONSTRUCTOR_C
+#define DESTRUCTOR_C
+#endif
+
+
 
 
 #endif /* XON_MACROS__H */

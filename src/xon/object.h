@@ -119,8 +119,7 @@ void xon_obj_builder_delete(xon_obj_builder builder);
  *  Returns XON_ERROR_MALLOC if the buffer needed to be reallocated
  *  but malloc failed. Nothing is added in this case.
  */
-enum XON_STATUS 
-xon_obj_builder_add_string
+xon_status xon_obj_builder_add_string
 (xon_obj_builder builder, const char *key, const char *value);
 
 
@@ -133,8 +132,7 @@ xon_obj_builder_add_string
  *  Returns XON_ERROR_MALLOC if the buffer needed to be reallocated
  *  but malloc failed. Nothing is added in this case.
  */
-enum XON_STATUS 
-xon_obj_builder_add_double
+xon_status xon_obj_builder_add_double
 (xon_obj_builder builder, const char *key, double value);
 
 
@@ -147,8 +145,7 @@ xon_obj_builder_add_double
  *  Returns XON_ERROR_MALLOC if the buffer needed to be reallocated
  *  but malloc failed. Nothing is added in this case.
  */
-enum XON_STATUS 
-xon_obj_builder_add_int32
+xon_status xon_obj_builder_add_int32
 (xon_obj_builder builder, const char *key, int32_t value);
 
 
@@ -161,8 +158,7 @@ xon_obj_builder_add_int32
  *  Returns XON_ERROR_MALLOC if the buffer needed to be reallocated
  *  but malloc failed. Nothing is added in this case.
  */
-enum XON_STATUS 
-xon_obj_builder_add_int64
+xon_status xon_obj_builder_add_int64
 (xon_obj_builder builder, const char *key, int64_t value);
 
 

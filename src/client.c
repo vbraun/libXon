@@ -34,5 +34,40 @@ void fini()
  *******************************************************/
 
 
+EXPORTED_SYMBOL_C
+xon_client xon_client_new(const char *dst)
+{
+  xon_client client = (xon_client)
+    malloc(sizeof(xon_client_struct));
+  if (client == NULL)
+    return NULL;
+
+  return client;
+}
+
+
+EXPORTED_SYMBOL_C
+void xon_client_delete(xon_client client)
+{
+  free(client);
+}
+
+
+EXPORTED_SYMBOL_C
+xon_status xon_client_send(xon_client client, xon_obj obj)
+{
+  
+  return XON_OK;
+}
+
+
+EXPORTED_SYMBOL_C
+xon_status xon_client_receive(xon_client client, xon_obj *obj)
+{
+  return XON_OK;
+}
+
+
+
 
 NAMESPACE_XON_C_API_END

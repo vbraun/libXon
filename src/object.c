@@ -94,8 +94,7 @@ inline size_t suggested_size(size_t actual_size)
 /* Enlarge the buffer to hold at least minimum_size bytes. 
  */
 static inline
-enum XON_STATUS 
-enlarge(xon_obj_builder builder, size_t minimum_size)
+xon_status enlarge(xon_obj_builder builder, size_t minimum_size)
 {
   if (minimum_size <= builder->capacity)
     return XON_OK;
@@ -124,8 +123,7 @@ enlarge(xon_obj_builder builder, size_t minimum_size)
 /* Enlarge the buffer to hold at least minimum_size bytes.
  */
 static inline
-enum XON_STATUS 
-ensure_capacity(xon_obj_builder builder, size_t additional_size) 
+xon_status ensure_capacity(xon_obj_builder builder, size_t additional_size) 
 {
   ptrdiff_t length = (builder->end - builder->buf) + additional_size;
   return enlarge(builder, length);
@@ -133,15 +131,14 @@ ensure_capacity(xon_obj_builder builder, size_t additional_size)
 
 
 EXPORTED_SYMBOL_C
-enum XON_STATUS 
-xon_obj_builder_add_string
+xon_status xon_obj_builder_add_string
 (xon_obj_builder builder, const char *key, const char *value)
 {
   size_t key_len = strlen(key)+1;
   size_t value_len = strlen(value)+1;
   size_t aligned_key_len = ALIGN_ROUND_UP_SIZE(key_len);
   size_t aligned_value_len = ALIGN_ROUND_UP_SIZE(value_len);
-  enum XON_STATUS rc;
+  xon_status rc;
   rc = ensure_capacity(builder, ALIGN_BYTES + aligned_key_len + aligned_value_len);
   if (rc != XON_OK)
     return rc;
@@ -159,15 +156,14 @@ xon_obj_builder_add_string
 
 
 EXPORTED_SYMBOL_C
-enum XON_STATUS 
-xon_obj_builder_add_double
+xon_status xon_obj_builder_add_double
 (xon_obj_builder builder, const char *key, double value)
 {
   size_t key_len = strlen(key)+1;
   size_t value_len = sizeof(double);
   size_t aligned_key_len = ALIGN_ROUND_UP_SIZE(key_len);
   size_t aligned_value_len = ALIGN_ROUND_UP_SIZE(value_len);
-  enum XON_STATUS rc;
+  xon_status rc;
   rc = ensure_capacity(builder, ALIGN_BYTES + aligned_key_len + aligned_value_len);
   if (rc != XON_OK)
     return rc;
@@ -185,15 +181,14 @@ xon_obj_builder_add_double
 
 
 EXPORTED_SYMBOL_C
-enum XON_STATUS 
-xon_obj_builder_add_int32
+xon_status xon_obj_builder_add_int32
 (xon_obj_builder builder, const char *key, int32_t value)
 {
   size_t key_len = strlen(key)+1;
   size_t value_len = sizeof(int32_t);
   size_t aligned_key_len = ALIGN_ROUND_UP_SIZE(key_len);
   size_t aligned_value_len = ALIGN_ROUND_UP_SIZE(value_len);
-  enum XON_STATUS rc;
+  xon_status rc;
   rc = ensure_capacity(builder, ALIGN_BYTES + aligned_key_len + aligned_value_len);
   if (rc != XON_OK)
     return rc;
@@ -211,15 +206,14 @@ xon_obj_builder_add_int32
 
 
 EXPORTED_SYMBOL_C
-enum XON_STATUS 
-xon_obj_builder_add_int64
+xon_status xon_obj_builder_add_int64
 (xon_obj_builder builder, const char *key, int64_t value)
 {
   size_t key_len = strlen(key)+1;
   size_t value_len = sizeof(int64_t);
   size_t aligned_key_len = ALIGN_ROUND_UP_SIZE(key_len);
   size_t aligned_value_len = ALIGN_ROUND_UP_SIZE(value_len);
-  enum XON_STATUS rc;
+  xon_status rc;
   rc = ensure_capacity(builder, ALIGN_BYTES + aligned_key_len + aligned_value_len);
   if (rc != XON_OK)
     return rc;

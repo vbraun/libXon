@@ -80,7 +80,7 @@ xon_status xon_client_send(xon_client client, xon_obj obj);
  *
  *  This call blocks until a new obj has been received.
  */
-xon_status xon_client_recieve(xon_client client, xon_obj *obj);
+xon_status xon_client_receive(xon_client client, xon_obj *obj);
 
 
 

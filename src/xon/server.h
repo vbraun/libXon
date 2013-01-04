@@ -36,7 +36,7 @@ EXTERN_C_BEGIN
  */
 typedef struct {
   /*! @brief The current buffer, can change if we need to realloc. */
-  
+  int sockfd;
 } xon_server_struct;
 
 
@@ -79,7 +79,7 @@ xon_status xon_server_send(xon_server server, xon_obj obj);
  *
  *  This call blocks until a new obj has been received.
  */
-xon_status xon_server_receive(xon_server server, xon_obj *obj);
+xon_status xon_server_receive(xon_server server, xon_obj *obj_ptr);
 
 
 

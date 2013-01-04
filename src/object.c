@@ -351,6 +351,7 @@ xon_obj_reader xon_obj_reader_new(xon_obj obj)
 
   }
   reader->n_elements = n;
+  assert(pos + ALIGN_BYTES == end);
   return reader;
 }
 

@@ -15,3 +15,7 @@ doc/latex
 libtool
 test/xon_obj_rw
 test/xon_objxx_rw
+test/test_server_c
+test/test_server_cxx
+test/test_client_c
+test/test_client_cxx

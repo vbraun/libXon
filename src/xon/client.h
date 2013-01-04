@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #endif 
 
+#include <sys/types.h>
 #include <xon/object.h>
 
 #ifdef __cplusplus
@@ -26,7 +27,7 @@ EXTERN_C_BEGIN
  *
  *******************************************************/
 
-/*! @brief IPC Client. 
+/*! @brief Local IPC Client. 
  * 
  *  The client is you, that is, the side that is making the IPC
  *  request. You want to ask some other program to evaluate. The other
@@ -35,7 +36,9 @@ EXTERN_C_BEGIN
  */
 typedef struct {
   /*! @brief The current buffer, can change if we need to realloc. */
-  
+  char *buf;
+  int sockfd;
+  pid_t server_pid;
 } xon_client_struct;
 
 

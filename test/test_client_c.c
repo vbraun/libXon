@@ -23,15 +23,24 @@ xon_obj make_obj()
 
 int main(void)
 {
-  xon_client client = xon_client_new("test_server_c");
-  
+  xon_client client = xon_client_new("./test_server_c");
   xon_obj obj = make_obj();
-  printf("Sending object");
-  xon_client_send(client, obj);
+
+  printf("\nSent object:\n");
+  xon_obj_print(obj);
+
+  if (xon_client_send(client, obj) != XON_OK) {
+    printf("Client: Error sending message.\n");
+    return 1;
+  }
   free(obj);
 
-  xon_client_receive(client, &obj);
-  printf("Received object");
+  if (xon_client_receive(client, &obj) != XON_OK) {
+    printf("Client: Error receiving message.\n");
+    return 2;
+  }
+
+  printf("\nReceived object:\n");
   xon_obj_print(obj);
   free(obj);
   

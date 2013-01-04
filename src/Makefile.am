@@ -32,7 +32,9 @@ libxon_objxx_la_CXXFLAGS = \
 libxon_client_la_SOURCES = \
 	client.c xon/client.h \
 	xon/constants.h xon/object.h \
-	macros.h align.h 
+	macros.h align.h \
+	subprocess.h subprocess.c \
+	socket_comm.h socket_comm.c
 
 libxon_client_la_CFLAGS = \
 	-DBUILDING_XON_LIBRARY_C \
@@ -43,7 +45,8 @@ libxon_client_la_CFLAGS = \
 libxon_server_la_SOURCES = \
 	server.c xon/server.h \
 	xon/constants.h xon/object.h \
-	macros.h align.h 
+	macros.h align.h \
+	socket_comm.h socket_comm.c
 
 libxon_server_la_CFLAGS = \
 	-DBUILDING_XON_LIBRARY_C \

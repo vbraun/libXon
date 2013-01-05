@@ -65,21 +65,14 @@ void xon_client_delete(xon_client client)
 EXPORTED_SYMBOL_C
 xon_status xon_client_send(xon_client client, xon_obj obj)
 {
-  int n = socket_send_all(client->sockfd, obj, xon_obj_size(obj));
-  if (n == -1) 
-    return XON_ERROR_SEND;
-  return XON_OK;
+  return socket_send_obj(client->sockfd, obj);
 }
 
 
 EXPORTED_SYMBOL_C
 xon_status xon_client_receive(xon_client client, xon_obj *obj_ptr)
 {
-  int n = socket_recv_all(client->sockfd, obj_ptr);
-  if (n == -1)
-    return XON_ERROR_RECV;
-  assert(n == xon_obj_size(*obj_ptr));
-  return XON_OK;
+  return socket_recv_obj(client->sockfd, obj_ptr);
 }
 
 

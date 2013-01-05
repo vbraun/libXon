@@ -10,10 +10,9 @@
 
 pid_t run_subprocess(const char *dst)
 {
-  pid_t parent_pid = getpid();
   pid_t pid = fork();
   if (pid == 0) { // child
-    execlp(dst, NULL);
+    execlp(dst, dst, NULL);
     const int size = 1024;
     char err[size];
     snprintf(err, size, "Failed to execute %s", dst);
@@ -23,6 +22,7 @@ pid_t run_subprocess(const char *dst)
     fprintf(stderr, "Failed to fork (out of memory?).\n");
     exit(2);
   }
+  return pid;
 }
 
 

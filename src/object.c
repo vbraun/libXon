@@ -3,9 +3,11 @@
 #include <string.h>
 #include <malloc.h>
 #include <assert.h>
+#include <endian.h>
 
 #include "macros.h"
 #include "xon/object.h"
+#include "debug.h"
 
 NAMESPACE_XON_C_API_BEGIN
 
@@ -22,7 +24,7 @@ CONSTRUCTOR_C
 void init() 
 {
   memset(magic, 'a', 2*ALIGN_BYTES);
-  *((int32_t*)magic) = XON_MAGIC;
+  *((int32_t*)magic) = htole32(XON_MAGIC);
 }
 
 
@@ -45,7 +47,7 @@ xon_obj_builder xon_obj_builder_new()
   void *buf = malloc(size);
   if (buf == NULL)
     return NULL;
-  xon_obj_builder_new_with_buf(buf, size, true);
+  return xon_obj_builder_new_with_buf(buf, size, true);
 }
 
 
@@ -100,7 +102,7 @@ xon_status enlarge(xon_obj_builder builder, size_t minimum_size)
     return XON_OK;
 
   ptrdiff_t length = builder->end - builder->buf;
-  size_t new_size = suggested_size(new_size);
+  size_t new_size = suggested_size(minimum_size);
   void *new_buf;
   if (builder->buf == builder->initial_buf) {
     new_buf = malloc(new_size);
@@ -291,8 +293,8 @@ xon_obj_reader xon_obj_reader_new(xon_obj obj)
   char* pos = (char*)obj;
   size_t size = xon_obj_size(obj);
   char* end = (char*)obj + size;
-  if (memcmp(pos, magic, ALIGN_BYTES) != 0) {
-    fprintf(stderr, "libxon-obj: binary object from different architecture.\n");
+  if (!xon_obj_verify_architecture(obj)) {
+    debug_printf("libxon-obj: binary object from different architecture.\n");
     return NULL;
   }
   // skip ahead to actual data
@@ -338,12 +340,10 @@ xon_obj_reader xon_obj_reader_new(xon_obj obj)
       pos += ALIGN_ROUND_UP_SIZE(sizeof(int64_t)); 
       break;
     default:
-      fprintf(stderr, "libxon-obj: Unsupported type: %x\n", type);
+      debug_printf("libxon-obj: Unsupported type: %x\n");
       xon_obj_reader_delete(reader);
       return NULL;
     }
-    // printf("#%d: type=0x%x 0x%x %s 0x%x\n", n, 
-    //       reader->types[n], reader->keys[n], reader->keys[n], reader->values[n]);
     n += 1;
     reader = reader_new_realloc(reader, n);
     if (reader == NULL)
@@ -389,7 +389,7 @@ bool check_type(xon_obj_reader reader, int pos, int type)
 {
   if (reader->types[pos] == type) 
     return true;
-  fprintf(stderr, "libxon-obj: Wrong type at #%d: expected 0x%x, got 0x%x.\n", 
+  debug_printf("libxon-obj: Wrong type at #%d: expected 0x%x, got 0x%x.\n", 
           pos, type, xon_obj_reader_type(reader, pos));
   return false;
 }
@@ -444,11 +444,26 @@ void xon_obj_reader_delete(xon_obj_reader reader)
  *******************************************************/
 
 EXPORTED_SYMBOL_C
+bool xon_obj_verify_architecture(xon_obj obj) 
+{
+  return xon_obj_is_bson(obj) || (memcmp(obj, magic, sizeof(int32_t)) == 0);
+}
+
+
+EXPORTED_SYMBOL_C
+bool xon_obj_is_bson(xon_obj obj) 
+{
+  int32_t size = le32toh(*(int32_t*)obj);
+  return size > 0;
+}
+
+
+EXPORTED_SYMBOL_C
 void xon_obj_print(xon_obj obj)
 {
   char *output = xon_obj_string(obj);
   if (output == NULL) {
-    fprintf(stderr, "libxon-obj: Could not stringify object.\n");
+    debug_printf("libxon-obj: Could not stringify object.\n");
     return;
   }
   printf("%s\n", output);
@@ -488,9 +503,9 @@ char* xon_obj_string_indent
     lines[i] = (char*)malloc(max_len+1);
   
   if (address)
-    snprintf(lines[0], max_len, "0x%.8x %s{", (char*)obj, prefix);
+    snprintf(lines[0], max_len, "%p %s{", (void*)obj, prefix);
   else
-    snprintf(lines[0], max_len, "%s{", (char*)obj, prefix);
+    snprintf(lines[0], max_len, "%s{", prefix);
 
   char addr[max_len+1];
   for (int i=0; i<n; i++) {
@@ -531,7 +546,7 @@ char* xon_obj_string_indent
   if (address)
     snprintf(lines[n+1], max_len, "0x%.8x %s}", end_marker, prefix);
   else
-    snprintf(lines[n+1], max_len, "%s}", end_marker, prefix);
+    snprintf(lines[n+1], max_len, "%s}", prefix);
   
   int len = 1;
   for (int i=0; i<=n+1; i++) {

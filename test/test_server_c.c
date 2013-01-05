@@ -26,18 +26,22 @@ int main(void)
 
   xon_obj obj;
 
+  printf("Server: receiving message\n");
   if (xon_server_receive(server, &obj) != XON_OK) {
     printf("Server: Error receiving message.\n");
     return 3;
   }
+  printf("Server: received message\n");
 
   free(obj);
   obj = make_obj();
 
+  printf("Server: sending reply\n");
   if (xon_server_send(server, obj) != XON_OK) {
     printf("Server: Error sending message.\n");
     return 4;
   }
+  printf("Server: sent reply\n");
   free(obj);
   
   xon_server_delete(server);

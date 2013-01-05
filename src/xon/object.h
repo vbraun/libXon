@@ -302,6 +302,23 @@ void xon_obj_reader_delete(xon_obj_reader reader);
  *
  *******************************************************/
 
+/*! @brief Test whether achitecture matches
+ *
+ *  @param obj the binary object
+ *  @return true if the binary object is either architecture
+ *          independent or of the host architecture.
+ */
+bool xon_obj_verify_architecture(xon_obj obj);
+
+
+/*! @brief Test whether object is BSON
+ *
+ *  @param obj the binary object
+ *  @return true if the binary object is BSON
+ */
+bool xon_obj_is_bson(xon_obj obj);
+
+
 /*! @brief Return the size
  *
  *  @param obj the binary object

@@ -67,6 +67,8 @@ buffer_t buffer_new(buffer_t buffer)
 
 void buffer_delete(buffer_t buffer)
 {
+  if (buffer == NULL)
+    return;
   if (buffer->begin != buffer->initial)
     free(buffer->begin);
   if (buffer->free_initial_buffer)

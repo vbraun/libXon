@@ -44,7 +44,9 @@ typedef struct {
    *  @param buffer the buffer to destroy
    *
    *  You must call this function on every buffer that you created, or
-   *  you will leak memory.
+   *  you will leak memory. 
+   * 
+   *  buffer may be NULL, in which case nothing is done.
    */
   void (*delete)(buffer_t buffer);
 

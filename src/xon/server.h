@@ -27,25 +27,12 @@ EXTERN_C_BEGIN
  *
  *******************************************************/
 
-/*! @brief IPC Server. 
- * 
- *  The server is some program that you want to run (or evaluate a
- *  command in) and get the result back into your own
- *  session. Everything in this struct is an implementation detail and
- *  subject to change without notice.
- */
-typedef struct {
-  /*! @brief The current buffer, can change if we need to realloc. */
-  int sockfd;
-} xon_server_struct;
-
-
 /*! @brief Pointer to a xon_server_struct 
  *
  *  All public functions take / return such pointers, never the actual
  *  struct.
  */
-typedef xon_server_struct *xon_server;
+typedef struct xon_server *xon_server;
 
 
 /*! @brief Create a new server

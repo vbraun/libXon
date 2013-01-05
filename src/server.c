@@ -3,12 +3,27 @@
 #include <string.h>
 #include <malloc.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include "macros.h"
 #include "xon/server.h"
 #include "socket_comm.h"
 
 NAMESPACE_XON_C_API_BEGIN
+
+
+/*! @brief IPC Server. 
+ * 
+ *  The server is some program that you want to run (or evaluate a
+ *  command in) and get the result back into your own
+ *  session. Everything in this struct is an implementation detail and
+ *  subject to change without notice.
+ */
+struct xon_server {
+  /*! @brief Socket to communicate with client */
+  int sockfd;
+};
+
 
 /*******************************************************
  *
@@ -39,10 +54,14 @@ EXPORTED_SYMBOL_C
 xon_server xon_server_new()
 {
   xon_server server = (xon_server)
-    malloc(sizeof(xon_server_struct));
+    malloc(sizeof(struct xon_server));
   if (server == NULL)
     return NULL;
   server->sockfd = client_connect();
+  if (server->sockfd == -1) {
+    xon_server_delete(server);
+    return NULL;
+  }
   return server;
 }
 
@@ -51,6 +70,8 @@ xon_server xon_server_new()
 EXPORTED_SYMBOL_C
 void xon_server_delete(xon_server server)
 {
+  if (server->sockfd >= 0)
+    close(server->sockfd);
   free(server);
 }
 
@@ -58,21 +79,14 @@ void xon_server_delete(xon_server server)
 EXPORTED_SYMBOL_C
 xon_status xon_server_send(xon_server server, xon_obj obj)
 {
-  int n = socket_send_all(server->sockfd, obj, xon_obj_size(obj));
-  if (n == -1) 
-    return XON_ERROR_SEND;
-  return XON_OK;
+  return socket_send_obj(server->sockfd, obj);
 }
 
 
 EXPORTED_SYMBOL_C
 xon_status xon_server_receive(xon_server server, xon_obj *obj_ptr)
 {
-  int n = socket_recv_all(server->sockfd, obj_ptr);
-  if (n == -1)
-    return XON_ERROR_RECV;
-  assert(n == xon_obj_size(*obj_ptr));
-  return XON_OK;
+  return socket_recv_obj(server->sockfd, obj_ptr);
 }
 
 

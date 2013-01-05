@@ -21,6 +21,8 @@ typedef enum xon_stauts {
   XON_OK             = 0,
   /*! @brief Malloc returned NULL (likely out of memory) */
   XON_ERROR_MALLOC   = 1,
+  
+  XON_ERROR_ARCH_MISMATCH,
 
   XON_ERROR_SEND,
   XON_ERROR_RECV, 

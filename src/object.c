@@ -23,7 +23,9 @@ char magic[2*ALIGN_BYTES];
 CONSTRUCTOR_C
 void init() 
 {
-  memset(magic, 'a', 2*ALIGN_BYTES);
+#ifdef XON_DEBUG  /* make valgrind happy */
+  memset(magic, 0xff, 2*ALIGN_BYTES);
+#endif
   *((int32_t*)magic) = htole32(XON_MAGIC);
 }
 
@@ -61,6 +63,9 @@ xon_obj_builder xon_obj_builder_new_with_buf
     (xon_obj_builder)malloc(sizeof(xon_obj_builder_struct));
   if (builder == NULL)
     return NULL;
+#ifdef XON_DEBUG  /* make valgrind happy */
+  memset(initial_buffer, 0xff, size);
+#endif
   memcpy(initial_buffer, magic, 2*ALIGN_BYTES);
 
   builder->initial_buf = (char*)initial_buffer;
@@ -115,6 +120,9 @@ xon_status enlarge(xon_obj_builder builder, size_t minimum_size)
     if (new_buf == NULL)
       return XON_ERROR_MALLOC;
   }
+#ifdef XON_DEBUG  /* make valgrind happy */
+  memset(new_buf+length, 0xff, new_size-length);
+#endif
   builder->buf = (char*)new_buf;
   builder->end = builder->buf + length;
   builder->capacity = new_size;

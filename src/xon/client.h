@@ -1,5 +1,5 @@
-#ifndef XON_CLIENT__H
-#define XON_CLIENT__H
+#ifndef XON__CLIENT__H
+#define XON__CLIENT__H
 
 /** @file */ 
 
@@ -89,4 +89,4 @@ xon_status xon_client_receive(xon_client client, xon_obj *obj);
 
 EXTERN_C_END
 
-#endif /* XON_CLIENT__H */
+#endif /* XON__CLIENT__H */

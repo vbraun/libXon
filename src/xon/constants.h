@@ -1,6 +1,7 @@
-#ifndef XON_CONSTANTS__H
-#define XON_CONSTANTS__H
+#ifndef XON__CONSTANTS__H
+#define XON__CONSTANTS__H
 
+/** @file */ 
 
 
 /* http://bsonspec.org/#/specification */
@@ -44,4 +45,4 @@
 
 
 
-#endif /* XON_CONSTANTS__H */
+#endif /* XON__CONSTANTS__H */

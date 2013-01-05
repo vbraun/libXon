@@ -1,5 +1,5 @@
-#ifndef SOCKET_COMMUNICATION__H
-#define SOCKET_COMMUNICATION__H
+#ifndef XON__SOCKET_COMMUNICATION__H
+#define XON__SOCKET_COMMUNICATION__H
 
 #include <stddef.h>
 
@@ -14,4 +14,4 @@ int socket_recv_all(int sockfd, void **buffer_ptr);
 
 
 
-#endif /* SOCKET_COMMUNICATION__H */
+#endif /* XON__SOCKET_COMMUNICATION__H */

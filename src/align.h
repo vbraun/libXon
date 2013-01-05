@@ -1,5 +1,5 @@
-#ifndef ALIGN_BYTES__H
-#define ALIGN_BYTES__H
+#ifndef XON__ALIGN_BYTES__H
+#define XON__ALIGN_BYTES__H
 
 #include "config.h"
 
@@ -41,4 +41,4 @@
 
 
 
-#endif  /* ALIGN_BYTES__H */
+#endif  /* XON__ALIGN_BYTES__H */

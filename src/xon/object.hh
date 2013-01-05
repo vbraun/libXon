@@ -1,5 +1,5 @@
-#ifndef XON_OBJECT__HH
-#define XON_OBJECT__HH
+#ifndef XON__OBJECT__HH
+#define XON__OBJECT__HH
 
 /** @file */ 
 
@@ -67,4 +67,4 @@ public:
 } /* end namespace xon */
 
 
-#endif /* XON_OBJECT__HH */
+#endif /* XON__OBJECT__HH */

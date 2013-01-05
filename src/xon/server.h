@@ -1,5 +1,5 @@
-#ifndef XON_SERVER__H
-#define XON_SERVER__H
+#ifndef XON__SERVER__H
+#define XON__SERVER__H
 
 /** @file */ 
 
@@ -85,4 +85,4 @@ xon_status xon_server_receive(xon_server server, xon_obj *obj_ptr);
 
 EXTERN_C_END
 
-#endif /* XON_SERVER__H */
+#endif /* XON__SERVER__H */

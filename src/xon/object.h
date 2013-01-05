@@ -1,5 +1,5 @@
-#ifndef XON_OBJECT__H
-#define XON_OBJECT__H
+#ifndef XON__OBJECT__H
+#define XON__OBJECT__H
 
 /** @file */ 
 
@@ -8,36 +8,10 @@
 #endif 
 
 #include <inttypes.h>
-#include "xon/constants.h"
+#include <xon/status.h>
+#include <xon/constants.h>
 
-#ifdef __cplusplus
-#define EXTERN_C_BEGIN  extern "C" {
-#define EXTERN_C_END    }
-#else
-#define EXTERN_C_BEGIN
-#define EXTERN_C_END
-#endif
-
-EXTERN_C_BEGIN
-
-
-/*! @brief Status codes.
- */
-enum XON_STATUS {
-  /*! @brief Successful completion */
-  XON_OK             = 0,
-  /*! @brief Malloc returned NULL (likely out of memory) */
-  XON_ERROR_MALLOC   = 1,
-
-  XON_ERROR_SEND,
-  XON_ERROR_RECV, 
-  XON_TIMEOUT, 
-};
-
-
-/*! @brief A type for the XON_STATUS enum
- */
-typedef enum XON_STATUS xon_status;
+XON__EXTERN_C_BEGIN
 
 
 /*! @brief A pointer to a binary object
@@ -366,6 +340,6 @@ char* xon_obj_string_indent(xon_obj obj, bool address, const char *prefix);
 
 
 
-EXTERN_C_END
+XON__EXTERN_C_END
 
-#endif /* XON_OBJECT__H */
+#endif /* XON__OBJECT__H */

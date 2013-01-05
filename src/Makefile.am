@@ -1,3 +1,5 @@
+AM_CFLAGS = -Wall
+
 lib_LTLIBRARIES = \
 	libxon-obj.la libxon-objxx.la \
 	libxon-client.la \
@@ -11,7 +13,8 @@ nobase_include_headers = \
 
 ##################################################################
 libxon_obj_la_SOURCES = \
-	object.c xon/object.h macros.h align.h xon/constants.h
+	object.c xon/object.h macros.h align.h xon/constants.h \
+	buffer.h buffer.c
 
 libxon_obj_la_CFLAGS = \
 	-DBUILDING_XON_LIBRARY_C \
@@ -51,3 +54,4 @@ libxon_server_la_SOURCES = \
 libxon_server_la_CFLAGS = \
 	-DBUILDING_XON_LIBRARY_C \
 	-DCONFIG_H $(CFLAG_VISIBILITY)
+

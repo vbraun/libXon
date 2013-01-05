@@ -1,5 +1,5 @@
-#ifndef XON_MACROS__H
-#define XON_MACROS__H
+#ifndef XON__MACROS__H
+#define XON__MACROS__H
 
 #include "config.h"
 #include "align.h"
@@ -62,4 +62,4 @@
 
 
 
-#endif /* XON_MACROS__H */
+#endif /* XON__MACROS__H */

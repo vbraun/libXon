@@ -1,5 +1,5 @@
-#ifndef SUB_PROCESS__H
-#define SUB_PROCESS__H
+#ifndef XON__SUB_PROCESS__H
+#define XON__SUB_PROCESS__H
 
 
 #include <sys/types.h>
@@ -11,5 +11,5 @@ void kill_subprocess(const pid_t pid);
 
 
 
-#endif /* SUB_PROCESS__H */
+#endif /* XON__SUB_PROCESS__H */
 

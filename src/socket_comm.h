@@ -11,10 +11,25 @@
 #include "buffer.h"
 
 
-int server_listen(void);
-int server_accept(int sockfd);
+/*! @brief Listen on port
+ * 
+ *  @param port the initial port. If bind fails, try higher ports.
+ *  @return the socket file descriptor
+ */
+int server_listen_net(int *port);
 
-int client_connect();
+/*! @brief Accept connection on socket
+ * 
+ *  @param sockfd the bound port
+ *  @param cookie to verify that the client is authorized
+ *  @return the socket file descriptor to communicate on
+ * 
+ *  This function closes the original file descriptor sockfd (and,
+ *  therefore, accepts no further connections).
+ */
+int server_accept(int sockfd, const char *cookie);
+
+int client_connect(const char *cookie);
 
 /*! @brief Send over socket 
  */

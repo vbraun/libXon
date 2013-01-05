@@ -57,7 +57,7 @@ xon_server xon_server_new()
     malloc(sizeof(struct xon_server));
   if (server == NULL)
     return NULL;
-  server->sockfd = client_connect();
+  server->sockfd = client_connect(NULL);
   if (server->sockfd == -1) {
     xon_server_delete(server);
     return NULL;

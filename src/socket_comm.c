@@ -10,10 +10,9 @@
 #include <endian.h>
 
 #include "socket_comm.h"
+#include "cookie.h"
 #include "align.h"
 #include "debug.h"
-
-#define PORT "13490"
 
 
 
@@ -26,8 +25,7 @@ union sockaddr_any {
 
 
 
-
-int server_listen(void)
+int try_bind_port(int port)
 {
   struct addrinfo hints;
   memset(&hints, 0, sizeof hints);
@@ -35,8 +33,11 @@ int server_listen(void)
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_PASSIVE;
   
+  char port_str[10];
+  snprintf(port_str, 10, "%d", port);
+
   struct addrinfo *res;
-  int rv = getaddrinfo(NULL, PORT, &hints, &res);
+  int rv = getaddrinfo(NULL, port_str, &hints, &res);
   if (rv != 0) {
     fprintf(stderr, "server: getaddrinfo: %s\n", gai_strerror(rv));
     return -1;
@@ -66,20 +67,35 @@ int server_listen(void)
   freeaddrinfo(res);
   
   if (p == NULL)  {
-    fprintf(stderr, "server: failed to bind\n");
-    return -1;
-  }
-  
-  printf("server: waiting for connections...\n");
-  if (listen(sockfd, 1) == -1) {
-    perror("server: listen");
+    fprintf(stderr, "server: failed to bind port %d\n", port);
     return -1;
   }
   return sockfd;
 }
 
 
-int server_accept(int sockfd)
+int server_listen_net(int *port)
+{
+  int sockfd = -1;
+  for (int good_port = *port; good_port < (*port)+1024; good_port++) {
+    sockfd = try_bind_port(good_port);
+    if (sockfd != -1) {
+      *port = good_port;
+      break;
+    }
+  }
+
+  printf("server: waiting for connections on port %d\n", *port);
+  if (listen(sockfd, 1) == -1) {
+    perror("server: listen");
+    return -1;
+  }
+
+  return sockfd;
+}
+
+
+int server_accept(int sockfd, const char *cookie)
 {
   struct sockaddr_storage addr;
   socklen_t sin_size = sizeof(union sockaddr_any);
@@ -98,16 +114,21 @@ int server_accept(int sockfd)
 
 
 
-
-int client_connect()
+int client_connect(const char*cookie)
 {
+  int port;
+  parse_cookie(cookie, &port);
+  
   struct addrinfo hints;
   memset(&hints, 0, sizeof hints);
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
+
+  char port_str[10];
+  snprintf(port_str, 10, "%d", port);
   
   struct addrinfo *res;
-  int rv = getaddrinfo(NULL, PORT, &hints, &res);
+  int rv = getaddrinfo(NULL, port_str, &hints, &res);
   if (rv != 0) {
     fprintf(stderr, "client: getaddrinfo: %s\n", gai_strerror(rv));
     return -1;

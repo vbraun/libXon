@@ -37,6 +37,7 @@ libxon_client_la_SOURCES = \
 	xon/constants.h xon/object.h \
 	macros.h align.h \
 	subprocess.h subprocess.c \
+	cookie.h cookie.c \
 	socket_comm.h socket_comm.c
 
 libxon_client_la_CFLAGS = \
@@ -49,6 +50,7 @@ libxon_server_la_SOURCES = \
 	server.c xon/server.h \
 	xon/constants.h xon/object.h \
 	macros.h align.h \
+	cookie.h cookie.c \
 	socket_comm.h socket_comm.c
 
 libxon_server_la_CFLAGS = \

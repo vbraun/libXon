@@ -340,7 +340,7 @@ xon_obj_reader xon_obj_reader_new(xon_obj obj)
       pos += ALIGN_ROUND_UP_SIZE(sizeof(int64_t)); 
       break;
     default:
-      debug_printf("libxon-obj: Unsupported type: %x\n");
+      debug_printf("libxon-obj: Unsupported type: 0x%x\n", (unsigned int)type);
       xon_obj_reader_delete(reader);
       return NULL;
     }
@@ -515,7 +515,7 @@ char* xon_obj_string_indent
     int type = xon_obj_reader_type(reader, i);
     const char *key = xon_obj_reader_key(reader, i);
     if (address)
-      snprintf(addr, max_len, "0x%.8x ", key);
+      snprintf(addr, max_len, "%p %s", (void*)key, prefix);
     else
       strncpy(addr, prefix, max_len);
 
@@ -544,7 +544,7 @@ char* xon_obj_string_indent
 
   char *end_marker = (char*)obj + (xon_obj_size(obj) - ALIGN_BYTES);
   if (address)
-    snprintf(lines[n+1], max_len, "0x%.8x %s}", end_marker, prefix);
+    snprintf(lines[n+1], max_len, "%p %s}", (void*)end_marker, prefix);
   else
     snprintf(lines[n+1], max_len, "%s}", prefix);
   

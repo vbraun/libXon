@@ -8,6 +8,12 @@
 
 
 const char* COOKIE_ENV_VAR = "XON_COOKIE";
+const int COOKIE_LENGTH = 64;
+
+const char *alphanumeric = 
+  "abcdefghijklmnopqrstuvwxyz"
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  "0123456789";
 
 
 char *new_cookie(int port)
@@ -16,7 +22,13 @@ char *new_cookie(int port)
   char *s = (char*)malloc(size);
   if (s == NULL)
     return s;
-  snprintf(s, size, "%d", port);
+  snprintf(s, size, "%d:", port);
+  char *pos = s + strlen(s);
+  for (int i=0; i<COOKIE_LENGTH; i++) {
+    int n = random() % strlen(alphanumeric);
+    *pos++ = alphanumeric[n];
+  }
+  *pos = NULL;
   return s;
 }
 

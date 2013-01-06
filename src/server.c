@@ -8,6 +8,7 @@
 #include "macros.h"
 #include "xon/server.h"
 #include "socket_comm.h"
+#include "cookie.h"
 
 NAMESPACE_XON_C_API_BEGIN
 
@@ -55,14 +56,33 @@ xon_server xon_server_new()
 {
   xon_server server = (xon_server)
     malloc(sizeof(struct xon_server));
-  if (server == NULL)
-    return NULL;
-  server->sockfd = client_connect(NULL);
-  if (server->sockfd == -1) {
+  bool good = (server != NULL);
+  
+  if (good) {
+    server->sockfd = -1;
+  }
+
+  const char *cookie = get_cookie_from_environ();
+  good = good && (cookie != NULL);
+    
+  int cookie_size;
+  if (good) {
+    cookie_size = strlen(cookie)+1;
+    server->sockfd = client_connect(cookie);
+    good = (server->sockfd != -1);
+  }
+
+  if (good) {
+    xon_status rc = socket_send(server->sockfd, cookie, cookie_size);
+    good = (rc == XON_OK);
+  }
+  
+  if (good)
+    return server;
+  else {
     xon_server_delete(server);
     return NULL;
   }
-  return server;
 }
 
 
@@ -70,7 +90,9 @@ xon_server xon_server_new()
 EXPORTED_SYMBOL_C
 void xon_server_delete(xon_server server)
 {
-  if (server->sockfd >= 0)
+  if (server == NULL)
+    return;
+  if (server->sockfd != -1)
     close(server->sockfd);
   free(server);
 }

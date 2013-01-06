@@ -24,11 +24,19 @@ xon_obj make_obj()
 int main(void)
 {
   xon_client client = xon_client_new("./test_server_c");
+  if (client == NULL) {
+    printf("Client: Error starting client.\n");
+    return 1;
+  }
+
   xon_obj obj = make_obj();
+  if (obj == NULL) {
+    printf("Client: Error creating binary object.\n");
+    return 1;
+  }
 
-  printf("\nSent object:\n");
+  printf("\nClient: Sending:\n");
   xon_obj_print(obj);
-
   if (xon_client_send(client, obj) != XON_OK) {
     printf("Client: Error sending message.\n");
     return 1;
@@ -43,6 +51,11 @@ int main(void)
   printf("\nReceived object:\n");
   xon_obj_print(obj);
   free(obj);
+
+  if (xon_client_wait(client, 1000) != XON_OK) {
+    printf("Server did not quit by himself.\n");
+    /* xon_client_delete will kill server */
+  }
   
   xon_client_delete(client);
   return 0;

@@ -33,7 +33,7 @@ int client_connect(const char *cookie);
 
 /*! @brief Send over socket 
  */
-xon_status socket_send(int sockfd, void *data, size_t size);
+xon_status socket_send(int sockfd, const void *data, size_t size);
 
 /*! @brief Receive from socket into existing memory area
  */
@@ -45,7 +45,7 @@ xon_status socket_recv(int sockfd, void **data_ptr, size_t size);
 
 /*! @brief Send xon_obj
  */
-xon_status socket_send_obj(int sockfd, xon_obj obj);
+xon_status socket_send_obj(int sockfd, const xon_obj obj);
 
 /*! @brief Receive xon_obj
  */

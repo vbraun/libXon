@@ -16,7 +16,7 @@ XON__EXTERN_C_BEGIN
 
 /*! @brief Status codes.
  */
-typedef enum xon_stauts {
+typedef enum xon_status {
   /*! @brief Successful completion */
   XON_OK             = 0,
   /*! @brief Malloc returned NULL (likely out of memory) */

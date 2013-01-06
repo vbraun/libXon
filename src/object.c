@@ -121,7 +121,7 @@ xon_status enlarge(xon_obj_builder builder, size_t minimum_size)
       return XON_ERROR_MALLOC;
   }
 #ifdef XON_DEBUG  /* make valgrind happy */
-  memset(new_buf+length, 0xff, new_size-length);
+  memset((char*)new_buf+length, 0xff, new_size-length);
 #endif
   builder->buf = (char*)new_buf;
   builder->end = builder->buf + length;

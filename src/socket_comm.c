@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <endian.h>
+#include <errno.h>
 
 #include "socket_comm.h"
 #include "cookie.h"
@@ -22,6 +23,44 @@ union sockaddr_any {
   struct sockaddr_in6 sa_in6;
   struct sockaddr_storage sa_storage;
 };
+
+
+static
+const char* ai_family_string(struct addrinfo *addr_ptr)
+{
+  switch (addr_ptr->ai_family) {
+  case AF_INET:
+    return "IPv4";
+  case AF_INET6:
+    return "IPv6";
+  case AF_LOCAL:
+    return "local";
+  default: 
+    return "unknown address family";
+  }
+}
+
+
+static
+const char* inet_string(char *buf, size_t bufsize, struct addrinfo *addr_ptr)
+{
+  void *addr;
+  union sockaddr_any *sockaddr_ptr = 
+    (union sockaddr_any*)(addr_ptr->ai_addr);
+  switch (addr_ptr->ai_family) {
+  case AF_INET:
+    addr = &sockaddr_ptr->sa_in.sin_addr;
+    break;
+  case AF_INET6:
+    addr = &sockaddr_ptr->sa_in6.sin6_addr;
+    break;
+  case AF_LOCAL:
+    return "local";
+  }
+  return inet_ntop(addr_ptr->ai_family, 
+                   addr, buf, bufsize);
+}
+
 
 
 
@@ -39,7 +78,7 @@ int try_bind_port(int port)
   struct addrinfo *res;
   int rv = getaddrinfo(NULL, port_str, &hints, &res);
   if (rv != 0) {
-    fprintf(stderr, "server: getaddrinfo: %s\n", gai_strerror(rv));
+    error_printf("server: getaddrinfo: %s\n", gai_strerror(rv));
     return -1;
   }
 
@@ -48,18 +87,20 @@ int try_bind_port(int port)
   for(p = res; p != NULL; p = p->ai_next) {
     sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
     if (sockfd == -1) {
-      perror("server: socket");
+      error_printf("server: socket: %s\n", strerror(errno));
       continue;
     }
     int yes=1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
       close(sockfd);
-      perror("server: setsockopt");
+      error_printf("server: setsockopt: %s\n", strerror(errno));
       continue;
     }
     if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
       close(sockfd);
-      perror("server: bind");
+      char buf[128];
+      error_printf("server: bind %s:%d %s\n", 
+                   inet_string(buf, 128, p), port, strerror(errno));
       continue;
     }
     break;
@@ -67,7 +108,7 @@ int try_bind_port(int port)
   freeaddrinfo(res);
   
   if (p == NULL)  {
-    fprintf(stderr, "server: failed to bind port %d\n", port);
+    error_printf("server: failed to bind port %d\n", port);
     return -1;
   }
   return sockfd;
@@ -87,7 +128,7 @@ int server_listen_net(int *port)
 
   printf("server: waiting for connections on port %d\n", *port);
   if (listen(sockfd, 1) == -1) {
-    perror("server: listen");
+    error_printf("server: listen: %s\n", strerror(errno));
     return -1;
   }
 
@@ -102,7 +143,7 @@ int server_accept(int sockfd, const char *cookie)
 
   int new_fd = accept(sockfd, (struct sockaddr *)&addr, &sin_size);
   if (new_fd == -1) {
-    perror("server: accept");
+    error_printf("server: accept: %s\n", strerror(errno));
     return -1;
   }
     
@@ -130,7 +171,7 @@ int client_connect(const char*cookie)
   struct addrinfo *res;
   int rv = getaddrinfo(NULL, port_str, &hints, &res);
   if (rv != 0) {
-    fprintf(stderr, "client: getaddrinfo: %s\n", gai_strerror(rv));
+    error_printf("client: getaddrinfo: %s\n", gai_strerror(rv));
     return -1;
   }
 
@@ -139,12 +180,14 @@ int client_connect(const char*cookie)
   for(p = res; p != NULL; p = p->ai_next) {
     sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
     if (sockfd == -1) {
-      perror("client: socket");
+      error_printf("client: socket: %s\n", strerror(errno));
       continue;
     }
     if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
       close(sockfd);
-      perror("client: connect");
+      char buf[128];
+      error_printf("client: connect %s:%d %s\n", 
+                   inet_string(buf, 128, p), port, strerror(errno));
       continue;
     }
     break;
@@ -152,7 +195,7 @@ int client_connect(const char*cookie)
   freeaddrinfo(res);
   
   if (p == NULL) {
-    fprintf(stderr, "client: failed to connect\n");
+    error_printf("client: failed to connect\n");
     return -1;
   }
 
@@ -162,7 +205,7 @@ int client_connect(const char*cookie)
 }
 
 
-xon_status socket_send(int sockfd, void *data, size_t size) 
+xon_status socket_send(int sockfd, const void *data, size_t size) 
 {
   char *buf = (char*)data;
   int bytes_sent = 0;
@@ -209,7 +252,7 @@ xon_status socket_recv(int sockfd, void **data_ptr, size_t size)
 }
   
 
-xon_status socket_send_obj(int sockfd, xon_obj obj)
+xon_status socket_send_obj(int sockfd, const xon_obj obj)
 {
   size_t size = xon_obj_size(obj);
   return socket_send(sockfd, obj, size);

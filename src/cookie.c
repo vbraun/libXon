@@ -21,15 +21,22 @@ char *new_cookie(int port)
 }
 
 
+const char *get_cookie_from_environ(void)
+{
+  return getenv(COOKIE_ENV_VAR);
+}
+
+
+
 void parse_cookie(const char* cookie, int *port)
 {
   const char *str = cookie;
   if (str == NULL)
-    str = getenv(COOKIE_ENV_VAR);
+    str = get_cookie_from_environ();
   if (str == NULL) {
-    fprintf(stderr, "Environment variable %s is missing.", COOKIE_ENV_VAR);
+    error_printf("Environment variable %s is missing.", COOKIE_ENV_VAR);
     return;
   }
-  *port = atoi(cookie);
-  debug_printf("parse_cookie: %s %d\n", cookie, port);
+  *port = atoi(str);
+  debug_printf("parse_cookie: %s %d\n", str, *port);
 }

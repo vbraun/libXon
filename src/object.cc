@@ -155,6 +155,7 @@ EXPORTED_SYMBOL_CPP
 obj_builder& obj_builder::add(std::string key, int64_t value)
 {
   c_api::xon_obj_builder_add_int64(ptr, key.c_str(), value);
+  return *this;
 }
 
 EXPORTED_SYMBOL_CPP

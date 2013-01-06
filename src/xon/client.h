@@ -86,6 +86,19 @@ xon_status xon_client_send(xon_client client, xon_obj obj);
 xon_status xon_client_receive(xon_client client, xon_obj *obj);
 
 
+/*! @brief Wait for the server to quit
+ *
+ *  @param client the client (you) that is connected to the server
+ *  @param timeout the timeout it seconds
+ *
+ *  This call blocks until a new obj has been received.
+ */
+xon_status xon_client_wait(xon_client client, double timeout);
+
+void xon_client_kill(xon_client client);
+
+
+
 
 EXTERN_C_END
 

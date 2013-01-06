@@ -9,5 +9,8 @@
 #define debug_printf(...) \
   if (XON_DEBUG) fprintf(stderr, __VA_ARGS__);
 
+#define error_printf(...) \
+  fprintf(stderr, __VA_ARGS__);
+
 
 #endif /* XON__DEBUG__H */

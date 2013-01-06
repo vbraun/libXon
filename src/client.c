@@ -1,14 +1,16 @@
+#include <unistd.h>
+#include <sys/types.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 #include <malloc.h>
 #include <assert.h>
-#include <unistd.h>
 #include <signal.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 
 #include "macros.h"
+#include "xon/status.h"
+#include "xon/object.h"
 #include "xon/client.h"
 #include "socket_comm.h"
 #include "subprocess.h"
@@ -39,8 +41,6 @@ void fini()
  * Client
  *
  *******************************************************/
-
-
 
 EXPORTED_SYMBOL_C
 xon_client xon_client_new(const char *dst)

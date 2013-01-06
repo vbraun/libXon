@@ -3,6 +3,11 @@
 
 /** @file */ 
 
+#include "xon/support.h"
+
+NAMESPACE_XON_C_API_BEGIN
+
+
 
 /*! @brief Name of the environment variable */
 extern const char* COOKIE_ENV_VAR;
@@ -34,5 +39,9 @@ void parse_cookie(const char* cookie, int *port);
  */
 const char *get_cookie_from_environ(void);
 
+
+
+
+NAMESPACE_XON_C_API_END
 
 #endif /* XON__COOKIE__H */

@@ -3,15 +3,11 @@
 
 /** @file */ 
 
-#ifdef __cplusplus
-#define XON__EXTERN_C_BEGIN  extern "C" {
-#define XON__EXTERN_C_END    }
-#else
-#define XON__EXTERN_C_BEGIN
-#define XON__EXTERN_C_END
-#endif
+#include <xon/support.h>
 
-XON__EXTERN_C_BEGIN
+NAMESPACE_XON_C_API_BEGIN
+
+
 
 
 /*! @brief Status codes.
@@ -31,6 +27,6 @@ typedef enum xon_status {
 
 
 
-XON__EXTERN_C_END
+NAMESPACE_XON_C_API_END
 
 #endif /* XON__STATUS__H */

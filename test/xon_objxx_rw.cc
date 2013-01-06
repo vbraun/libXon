@@ -6,7 +6,7 @@
 
 
 
-int test_c_api()
+void test_c_api()
 {
   using namespace xon::c_api;
   
@@ -49,7 +49,7 @@ int test_c_api()
 }
 
 
-int test_cplusplus_api() 
+void test_cplusplus_api() 
 {
   using std::cout;
   using std::endl;
@@ -66,7 +66,7 @@ int test_cplusplus_api()
   xb.add("int",   123);
   xb.add("large", (int64_t)(1) << 40);
   // Build the object and reset the builder
-  xon::obj obj(xb);
+  xon::object obj(xb);
   cout << endl << "First object" 
        << endl << obj
        << "Size = " << obj.size() << " bytes" 
@@ -85,6 +85,12 @@ int test_cplusplus_api()
        << endl << obj
        << "Size = " << obj.size() << " bytes" 
        << endl << endl;
+
+  const xon::obj_reader xr = obj.read_obj();
+  cout << "obj['key2'] = "  << xr.get_string("key2") << endl 
+       << "obj['float'] = " << xr.get_double("float") << endl 
+       << "obj['int'] = "   << xr.get_int32("int") << endl 
+       << "obj['large'] = " << xr.get_int64("large") << endl;
 
 } // xb is destroyed here
 

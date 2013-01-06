@@ -3,15 +3,18 @@
 
 /** @file */ 
 
+
 #ifndef __cplusplus
 #include <stdbool.h>
 #endif 
 
 #include <inttypes.h>
+
+#include <xon/support.h>
 #include <xon/status.h>
 #include <xon/constants.h>
 
-XON__EXTERN_C_BEGIN
+NAMESPACE_XON_C_API_BEGIN
 
 
 /*! @brief A pointer to a binary object
@@ -236,7 +239,9 @@ const char* xon_obj_reader_key(xon_obj_reader reader, int pos);
  *  @param pos the position of the entry
  *  @return a pointer to the value.
  */
-void* xon_obj_reader_get_value(xon_obj_reader reader, int pos);
+void* xon_obj_reader_get_value_pos(xon_obj_reader reader, int pos);
+/*! @brief Like xon_obj_reader_get_value_pos, but with key instead of position */
+void* xon_obj_reader_get_value_key(xon_obj_reader reader, const char *key);
 
 
 /*! @brief Get the string value at position pos
@@ -247,7 +252,9 @@ void* xon_obj_reader_get_value(xon_obj_reader reader, int pos);
  *  It is your responsibility to ensure that the type of the value
  *  actually is a string. See also xon_obj_reader_type.
  */
-const char* xon_obj_reader_get_string(xon_obj_reader reader, int pos);
+const char* xon_obj_reader_get_string_pos(xon_obj_reader reader, int pos);
+/*! @brief Like xon_obj_reader_get_string_pos, but with key instead of position */
+const char* xon_obj_reader_get_string_key(xon_obj_reader reader, const char *key);
 
 
 /*! @brief Get the double at position pos
@@ -259,7 +266,9 @@ const char* xon_obj_reader_get_string(xon_obj_reader reader, int pos);
  *  actually is a 64-bit floating point number. See also
  *  xon_obj_reader_type.
  */
-double xon_obj_reader_get_double(xon_obj_reader reader, int pos);
+double xon_obj_reader_get_double_pos(xon_obj_reader reader, int pos);
+/*! @brief Like xon_obj_reader_get_double_pos, but with key instead of position */
+double xon_obj_reader_get_double_key(xon_obj_reader reader, const char *key);
 
 
 /*! @brief Get the 32-bit int at position pos
@@ -271,6 +280,8 @@ double xon_obj_reader_get_double(xon_obj_reader reader, int pos);
  *  actually is 32-bit int. See also xon_obj_reader_type.
  */
 int32_t xon_obj_reader_get_int32(xon_obj_reader reader, int pos);
+/*! @brief Like xon_obj_reader_get_int32, but with key instead of position */
+int32_t xon_obj_reader_get_int32_key(xon_obj_reader reader, const char *key);
 
 
 /*! @brief Get the 64-bit int at position pos
@@ -281,7 +292,9 @@ int32_t xon_obj_reader_get_int32(xon_obj_reader reader, int pos);
  *  It is your responsibility to ensure that the type of the value
  *  actually is 64-bit int. See also xon_obj_reader_type.
  */
-int64_t xon_obj_reader_get_int64(xon_obj_reader reader, int pos);
+int64_t xon_obj_reader_get_int64_pos(xon_obj_reader reader, int pos);
+/*! @brief Like xon_obj_reader_get_int64_pos, but with key instead of position */
+int64_t xon_obj_reader_get_int64_key(xon_obj_reader reader, const char *key);
 
 
 /*! @brief Destroy the reader
@@ -356,7 +369,7 @@ char* xon_obj_string_indent(xon_obj obj, bool address, const char *prefix);
 
 
 
-
-XON__EXTERN_C_END
+NAMESPACE_XON_C_API_END
 
 #endif /* XON__OBJECT__H */
+

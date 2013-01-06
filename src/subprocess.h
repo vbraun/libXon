@@ -3,10 +3,13 @@
 
 /** @file */ 
 
-
 #include <sys/types.h>
 
-#include <xon/status.h>
+#include "xon/support.h"
+#include "xon/status.h"
+
+NAMESPACE_XON_C_API_BEGIN
+
 
 
 
@@ -24,6 +27,8 @@ xon_status wait_for_subprocess(const pid_t pid, double timeout);
 void kill_subprocess(const pid_t pid);
 
 
+
+NAMESPACE_XON_C_API_END
 
 #endif /* XON__SUB_PROCESS__H */
 

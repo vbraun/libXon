@@ -10,10 +10,14 @@
 #include <endian.h>
 #include <errno.h>
 
+#include "macros.h"
+#include "xon/object.h"
 #include "socket_comm.h"
 #include "cookie.h"
 #include "align.h"
 #include "debug.h"
+
+NAMESPACE_XON_C_API_BEGIN
 
 
 
@@ -99,7 +103,7 @@ int try_bind_port(int port)
     if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
       close(sockfd);
       char buf[128];
-      error_printf("server: bind %s:%d %s\n", 
+      error_printf("server: bind %s:%d %s (trying next)\n", 
                    inet_string(buf, 128, p), port, strerror(errno));
       continue;
     }
@@ -186,7 +190,7 @@ int client_connect(const char*cookie)
     if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
       close(sockfd);
       char buf[128];
-      error_printf("client: connect %s:%d %s\n", 
+      error_printf("client: connect %s:%d %s (trying next)\n", 
                    inet_string(buf, 128, p), port, strerror(errno));
       continue;
     }
@@ -293,3 +297,6 @@ xon_status socket_recv_obj(int sockfd, xon_obj *obj_ptr)
 }
 
 
+
+
+NAMESPACE_XON_C_API_END

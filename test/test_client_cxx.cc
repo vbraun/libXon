@@ -13,7 +13,7 @@ int main(void)
   xb.add("n", 39);
   xb.add("key", "value");
   
-  xon::obj obj = xb.obj();
+  xon::object obj = xb.get();
   cout << "Query:" << endl << obj << endl;
 
   // xon::client client_cc("file://localhost/test_server_c++");

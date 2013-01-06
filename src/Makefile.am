@@ -2,14 +2,16 @@ AM_CFLAGS = -Wall
 
 lib_LTLIBRARIES = \
 	libxon-obj.la libxon-objxx.la \
-	libxon-client.la \
-	libxon-server.la
+	libxon-server.la \
+	libxon-client.la libxon-clientxx.la
 
 nobase_include_headers = \
 	xon/constants.h \
+	xon/status.h \
 	xon/object.h xon/object.hh \
-	xon/client.h \
-	xon/server.h
+	xon/client.h xon/client.hh \
+	xon/server.h \
+	xon/exceptions.hh
 
 ##################################################################
 libxon_obj_la_SOURCES = \
@@ -23,7 +25,7 @@ libxon_obj_la_CFLAGS = \
 
 ##################################################################
 libxon_objxx_la_SOURCES = \
-	object.cc xon/object.hh xon/object.h \
+	object.cc xon/object.hh	xon/object.h \
 	macros.h align.h xon/constants.h
 
 libxon_objxx_la_CXXFLAGS = \
@@ -42,6 +44,21 @@ libxon_client_la_SOURCES = \
 
 libxon_client_la_CFLAGS = \
 	-DBUILDING_XON_LIBRARY_C \
+	-DCONFIG_H $(CFLAG_VISIBILITY)
+
+
+##################################################################
+libxon_clientxx_la_SOURCES = \
+	client.cc xon/client.hh xon/client.h \
+	xon/constants.h xon/object.h \
+	macros.h align.h \
+	subprocess.h subprocess.cc \
+	cookie.h cookie.cc \
+	socket_comm.h socket_comm.cc \
+	xon/exceptions.hh
+
+libxon_clientxx_la_CXXFLAGS = \
+	-DBUILDING_XON_LIBRARY_CPP \
 	-DCONFIG_H $(CFLAG_VISIBILITY)
 
 

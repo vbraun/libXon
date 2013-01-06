@@ -25,8 +25,6 @@
 #define EXPORTED_SYMBOL_CPP error()
 #define CONSTRUCTOR_CPP error()
 #define DESTRUCTOR_CPP error()
-#define NAMESPACE_XON_C_API_BEGIN
-#define NAMESPACE_XON_C_API_END
 #endif
 
 
@@ -53,8 +51,6 @@
 #ifdef BUILDING_XON_LIBRARY_CPP
 #define CONSTRUCTOR_C
 #define DESTRUCTOR_C
-#define NAMESPACE_XON_C_API_BEGIN namespace xon { namespace c_api { 
-#define NAMESPACE_XON_C_API_END } }
 #endif
 
 

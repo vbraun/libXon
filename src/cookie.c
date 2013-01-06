@@ -2,9 +2,11 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "xon/support.h"
 #include "cookie.h"
 #include "debug.h"
 
+NAMESPACE_XON_C_API_BEGIN
 
 
 const char* COOKIE_ENV_VAR = "XON_COOKIE";
@@ -28,7 +30,7 @@ char *new_cookie(int port)
     int n = random() % strlen(alphanumeric);
     *pos++ = alphanumeric[n];
   }
-  *pos = NULL;
+  *pos = '\0';
   return s;
 }
 
@@ -52,3 +54,8 @@ void parse_cookie(const char* cookie, int *port)
   *port = atoi(str);
   debug_printf("parse_cookie: %s %d\n", str, *port);
 }
+
+
+
+
+NAMESPACE_XON_C_API_END

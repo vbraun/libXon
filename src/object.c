@@ -302,7 +302,7 @@ xon_obj_reader xon_obj_reader_new(xon_obj obj)
   size_t size = xon_obj_size(obj);
   char* end = (char*)obj + size;
   if (!xon_obj_verify_architecture(obj)) {
-    debug_printf("libxon-obj: binary object from different architecture.\n");
+    error_printf("libxon-obj: binary object from different architecture.\n");
     return NULL;
   }
   // skip ahead to actual data
@@ -348,7 +348,7 @@ xon_obj_reader xon_obj_reader_new(xon_obj obj)
       pos += ALIGN_ROUND_UP_SIZE(sizeof(int64_t)); 
       break;
     default:
-      debug_printf("libxon-obj: Unsupported type: 0x%x\n", (unsigned int)type);
+      error_printf("libxon-obj: Unsupported type: 0x%x\n", (unsigned int)type);
       xon_obj_reader_delete(reader);
       return NULL;
     }
@@ -386,25 +386,48 @@ const char* xon_obj_reader_key(xon_obj_reader reader, int pos)
 
 
 EXPORTED_SYMBOL_C
-void* xon_obj_reader_get_value(xon_obj_reader reader, int pos)
+void* xon_obj_reader_get_value_pos(xon_obj_reader reader, int pos)
 {
   return reader->values[pos];
+}
+
+
+EXPORTED_SYMBOL_C
+void* xon_obj_reader_get_value_key(xon_obj_reader reader, const char *key)
+{
+  for (int i = 0; i < reader->n_elements; i++)
+    if (strcmp(key, reader->keys[i]) == 0)
+      return reader->values[i];
+  return NULL;
 }
 
 
 static inline 
 bool check_type(xon_obj_reader reader, int pos, int type)
 {
+  assert((pos >=0) && (pos < reader->n_elements));
   if (reader->types[pos] == type) 
     return true;
-  debug_printf("libxon-obj: Wrong type at #%d: expected 0x%x, got 0x%x.\n", 
+  error_printf("libxon-obj: Wrong type at #%d: expected 0x%x, got 0x%x.\n", 
           pos, type, xon_obj_reader_type(reader, pos));
   return false;
 }
 
 
+static inline 
+int find_position(xon_obj_reader reader, int type, const char *key)
+{
+  for (int i = 0; i < reader->n_elements; i++)
+    if ((reader->types[i] == type) && (strcmp(key, reader->keys[i]) == 0))
+      return i;
+  error_printf("libxon-obj: Key \"%s\" with type 0x%x not found.\n", 
+               key, type);
+  return -1;
+}
+
+
 EXPORTED_SYMBOL_C
-const char* xon_obj_reader_get_string(xon_obj_reader reader, int pos)
+const char* xon_obj_reader_get_string_pos(xon_obj_reader reader, int pos)
 {
   check_type(reader, pos, XON_ELEMENT_STRING);
   return (char*)(reader->values[pos]);
@@ -412,7 +435,15 @@ const char* xon_obj_reader_get_string(xon_obj_reader reader, int pos)
 
 
 EXPORTED_SYMBOL_C
-double xon_obj_reader_get_double(xon_obj_reader reader, int pos)
+const char* xon_obj_reader_get_string_key(xon_obj_reader reader, const char *key)
+{
+  const int pos = find_position(reader, XON_ELEMENT_STRING, key);
+  return (char*)(reader->values[pos]);
+}
+
+
+EXPORTED_SYMBOL_C
+double xon_obj_reader_get_double_pos(xon_obj_reader reader, int pos)
 {
   check_type(reader, pos, XON_ELEMENT_DOUBLE);
   return *(double*)(reader->values[pos]);
@@ -420,7 +451,15 @@ double xon_obj_reader_get_double(xon_obj_reader reader, int pos)
 
 
 EXPORTED_SYMBOL_C
-int32_t xon_obj_reader_get_int32(xon_obj_reader reader, int pos)
+double xon_obj_reader_get_double_key(xon_obj_reader reader, const char *key)
+{
+  const int pos = find_position(reader, XON_ELEMENT_DOUBLE, key);
+  return *(double*)(reader->values[pos]);
+}
+
+
+EXPORTED_SYMBOL_C
+int32_t xon_obj_reader_get_int32_pos(xon_obj_reader reader, int pos)
 {
   check_type(reader, pos, XON_ELEMENT_INT32);
   return *(int32_t*)(reader->values[pos]);
@@ -428,9 +467,25 @@ int32_t xon_obj_reader_get_int32(xon_obj_reader reader, int pos)
 
 
 EXPORTED_SYMBOL_C
-int64_t xon_obj_reader_get_int64(xon_obj_reader reader, int pos)
+int32_t xon_obj_reader_get_int32_key(xon_obj_reader reader, const char *key)
+{
+  const int pos = find_position(reader, XON_ELEMENT_INT32, key);
+  return *(int32_t*)(reader->values[pos]);
+}
+
+
+EXPORTED_SYMBOL_C
+int64_t xon_obj_reader_get_int64_pos(xon_obj_reader reader, int pos)
 {
   check_type(reader, pos, XON_ELEMENT_INT64);
+  return *(int64_t*)(reader->values[pos]);
+}
+
+
+EXPORTED_SYMBOL_C
+int64_t xon_obj_reader_get_int64_key(xon_obj_reader reader, const char *key)
+{
+  const int pos = find_position(reader, XON_ELEMENT_INT64, key);
   return *(int64_t*)(reader->values[pos]);
 }
 
@@ -471,7 +526,7 @@ void xon_obj_print(xon_obj obj)
 {
   char *output = xon_obj_string(obj);
   if (output == NULL) {
-    debug_printf("libxon-obj: Could not stringify object.\n");
+    error_printf("libxon-obj: Could not stringify object.\n");
     return;
   }
   printf("%s\n", output);
@@ -530,23 +585,23 @@ char* xon_obj_string_indent
     switch (type){
     case XON_ELEMENT_STRING:
       snprintf(line, max_len, "%s %s \"%s\": \"%s\",", 
-               addr, prefix, key, xon_obj_reader_get_string(reader, i));
+               addr, prefix, key, xon_obj_reader_get_string_pos(reader, i));
       break;
     case XON_ELEMENT_DOUBLE:
       snprintf(line, max_len, "%s %s \"%s\": %g,", 
-               addr, prefix, key, xon_obj_reader_get_double(reader, i));
+               addr, prefix, key, xon_obj_reader_get_double_pos(reader, i));
       break;
     case XON_ELEMENT_INT32:
       snprintf(line, max_len, "%s %s \"%s\": %i,", 
-               addr, prefix, key, xon_obj_reader_get_int32(reader, i));
+               addr, prefix, key, xon_obj_reader_get_int32_pos(reader, i));
       break;
     case XON_ELEMENT_INT64:
       snprintf(line, max_len, "%s %s \"%s\": %li,", 
-               addr, prefix, key, xon_obj_reader_get_int64(reader, i));
+               addr, prefix, key, xon_obj_reader_get_int64_pos(reader, i));
       break;
     default:
       snprintf(line, max_len, "%s %s \"%s\": unknown type at %p,", 
-               addr, prefix, key, xon_obj_reader_get_value(reader, i));
+               addr, prefix, key, xon_obj_reader_get_value_pos(reader, i));
     }
   }
 

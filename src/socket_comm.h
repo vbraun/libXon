@@ -3,12 +3,15 @@
 
 /** @file */ 
 
-
 #include <stddef.h>
 
+#include "xon/support.h"
+#include "macros.h"
 #include "xon/status.h"
 #include "xon/object.h"
-#include "buffer.h"
+
+
+NAMESPACE_XON_C_API_BEGIN
 
 
 /*! @brief Listen on port
@@ -53,5 +56,6 @@ xon_status socket_recv_obj(int sockfd, xon_obj *obj_ptr);
 
 
 
+NAMESPACE_XON_C_API_END
 
 #endif /* XON__SOCKET_COMMUNICATION__H */

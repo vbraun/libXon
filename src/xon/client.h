@@ -1,6 +1,8 @@
 #ifndef XON__CLIENT__H
 #define XON__CLIENT__H
 
+#include <xon/support.h>
+
 /** @file */ 
 
 #ifndef __cplusplus
@@ -8,17 +10,12 @@
 #endif 
 
 #include <sys/types.h>
+
+#include <xon/status.h>
 #include <xon/object.h>
 
-#ifdef __cplusplus
-#define EXTERN_C_BEGIN  extern "C" {
-#define EXTERN_C_END    }
-#else
-#define EXTERN_C_BEGIN
-#define EXTERN_C_END
-#endif
+NAMESPACE_XON_C_API_BEGIN
 
-EXTERN_C_BEGIN
 
 
 /*******************************************************
@@ -95,11 +92,15 @@ xon_status xon_client_receive(xon_client client, xon_obj *obj);
  */
 xon_status xon_client_wait(xon_client client, double timeout);
 
+/*! @brief Kill spawned server 
+ *
+ *  @param client the client (you)
+ */
 void xon_client_kill(xon_client client);
 
 
 
 
-EXTERN_C_END
+NAMESPACE_XON_C_API_END
 
 #endif /* XON__CLIENT__H */

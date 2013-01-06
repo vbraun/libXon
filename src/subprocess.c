@@ -10,10 +10,12 @@
 #include <sched.h>
 extern char **environ;
 
+#include "xon/support.h"
 #include "subprocess.h"
 #include "cookie.h"
 #include "debug.h"
 
+NAMESPACE_XON_C_API_BEGIN
 
 
 static
@@ -84,3 +86,8 @@ void kill_subprocess(const pid_t pid)
   kill(pid, SIGKILL);
   waitpid(pid, NULL, 0);
 }
+
+
+
+
+NAMESPACE_XON_C_API_END

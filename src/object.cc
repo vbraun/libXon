@@ -2,6 +2,7 @@
 
 #include "macros.h"
 #include "xon/object.hh"
+
 #include "object.c"
 
 namespace xon {
@@ -34,11 +35,11 @@ void fini()
  *
  *******************************************************/
 
-// obj::obj(c_api::obj o)
+// object::obj(c_api::obj o)
 // {
 // }
 
-void obj::decref()
+void object::decref()
 {
   std::cout << "decref " << ptr << " count=" << *refcount << std::endl;
   (*refcount)--;
@@ -49,7 +50,7 @@ void obj::decref()
   }
 }
 
-void obj::refer(const obj& o)
+void object::refer(const object& o)
 {
   std::cout << "refer " << o.ptr << " count=" << *(o.refcount) << std::endl;
   refcount = o.refcount;
@@ -57,35 +58,42 @@ void obj::refer(const obj& o)
   (*refcount)++;
 }
 
+EXPORTED_SYMBOL_CPP
+object::object(const c_api::xon_obj c_obj)
+{
+  ptr = c_obj;
+  refcount = new int(1);
+}
+
 
 EXPORTED_SYMBOL_CPP
-obj::obj(obj_builder& builder)
+object::object(builder& b)
 {
   refcount = new int(1);
-  ptr = builder.get_c_api();
+  ptr = b.get_c_api();
   std::cout << refcount << " " << ptr << std::endl;
 }
 
 EXPORTED_SYMBOL_CPP
-obj::obj(const obj& o)
+object::object(const object& o)
 {
   refer(o);
 }
 
 EXPORTED_SYMBOL_CPP
-obj::~obj()
+object::~object()
 {
   decref();
 }
 
 EXPORTED_SYMBOL_CPP
-size_t obj::size() const
+size_t object::size() const
 {
   return c_api::xon_obj_size(ptr);
 }
 
 EXPORTED_SYMBOL_CPP
-const obj& obj::operator=(const obj& src)
+const object& object::operator=(const object& src)
 {
   decref();
   refer(src);
@@ -93,7 +101,40 @@ const obj& obj::operator=(const obj& src)
 }
 
 EXPORTED_SYMBOL_CPP
-std::ostream& operator << (std::ostream &out, const obj& object)
+const void* object::pointer() const
+{
+  return ptr;
+}
+
+EXPORTED_SYMBOL_CPP
+bool object::is_bson() const
+{
+  return c_api::xon_obj_is_bson(ptr);
+}
+
+EXPORTED_SYMBOL_CPP
+bool object::is_host_arch() const
+{
+  return c_api::xon_obj_verify_architecture(ptr);
+}
+
+#if XON_WITH_TR1
+EXPORTED_SYMBOL_CPP
+const reader_ptr object::read() const
+{
+  return reader_ptr(new obj_reader(*this));
+}
+#endif
+
+EXPORTED_SYMBOL_CPP
+const obj_reader object::read_obj() const
+{
+  return obj_reader(*this);
+}
+
+
+EXPORTED_SYMBOL_CPP
+std::ostream& operator << (std::ostream &out, const object& object)
 {
   char *output = c_api::xon_obj_string(object.ptr);
   if (output != NULL) {
@@ -105,9 +146,24 @@ std::ostream& operator << (std::ostream &out, const obj& object)
 
 
 
+
 /*******************************************************
  *
- * Object builder
+ * Object builder: base class
+ *
+ *******************************************************/
+
+
+EXPORTED_SYMBOL_CPP
+object builder::get()
+{
+  return object(get_c_api());
+}
+
+
+/*******************************************************
+ *
+ * Object builder: binary objects
  *
  *******************************************************/
 
@@ -158,13 +214,91 @@ obj_builder& obj_builder::add(std::string key, int64_t value)
   return *this;
 }
 
-EXPORTED_SYMBOL_CPP
-obj obj_builder::get()
+
+
+
+/*******************************************************
+ *
+ * Object reader: abstract base class
+ *
+ *******************************************************/
+
+reader::reader(const object& o)
+  : obj(o)
 {
-  return obj(*this);
+}
+
+
+/*******************************************************
+ *
+ * Object reader
+ *
+ *******************************************************/
+
+EXPORTED_SYMBOL_CPP
+obj_reader::obj_reader(const object& o)
+  : reader(o)
+{
+  ptr = c_api::xon_obj_reader_new(const_cast<void*>(obj.pointer()));
+}
+
+EXPORTED_SYMBOL_CPP
+obj_reader::~obj_reader()
+{
+  c_api::xon_obj_reader_delete(ptr);
+}
+
+EXPORTED_SYMBOL_CPP
+std::string obj_reader::get_string(std::string key) const
+{
+  return std::string(c_api::xon_obj_reader_get_string_key(ptr, key.c_str()));
+}
+
+EXPORTED_SYMBOL_CPP
+std::string obj_reader::get_string(int pos) const
+{
+  return std::string(c_api::xon_obj_reader_get_string_pos(ptr, pos));
+}
+
+EXPORTED_SYMBOL_CPP
+double obj_reader::get_double(std::string key) const
+{
+  return c_api::xon_obj_reader_get_double_key(ptr, key.c_str());
+}
+
+EXPORTED_SYMBOL_CPP
+double obj_reader::get_double(int pos) const
+{
+  return c_api::xon_obj_reader_get_double_pos(ptr, pos);
+}
+
+EXPORTED_SYMBOL_CPP
+int32_t obj_reader::get_int32(std::string key) const
+{
+  return c_api::xon_obj_reader_get_int32_key(ptr, key.c_str());
+}
+
+EXPORTED_SYMBOL_CPP
+int32_t obj_reader::get_int32(int pos) const
+{
+  return c_api::xon_obj_reader_get_int32_pos(ptr, pos);
+}
+
+EXPORTED_SYMBOL_CPP
+int64_t obj_reader::get_int64(std::string key) const
+{
+  std::cout << "get_int64 key" << std::endl;
+
+  return c_api::xon_obj_reader_get_int64_key(ptr, key.c_str());
+}
+
+EXPORTED_SYMBOL_CPP
+int64_t obj_reader::get_int64(int pos) const
+{  
+  return c_api::xon_obj_reader_get_int64_pos(ptr, pos);
 }
 
 
 
-
 } /* end namespace xon */
+

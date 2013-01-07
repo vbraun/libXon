@@ -14,7 +14,8 @@
 #include <sys/wait.h>
 #include <poll.h>
 
-#include "xon/server.h"
+#include "xon/object.hh"
+#include "xon/server.hh"
 #include "debug.h"
 
 
@@ -169,22 +170,24 @@ int main(void)
 {
   using namespace std;
 
+  xon::server server;
+  const xon::object input = server.receive();
+  
+  const xon::obj_reader xr(input);
+  const string command = xr.get_string("command");
+  const string stdin = xr.get_string("stdin");
+  vector<string> args; // todo
 
-
-  const string command = "cat";
-  vector<string> args;
-  stringstream ss;
-  for (int i=0; i<100000; i++)
-    ss << "0123456789\n";
-  const string stdin = ss.str();
- 
   stringstream stdout;
   stringstream stderr;
   int rc = communicate(command, args, stdin, stdout, stderr);
 
-  cout << "Reply:" << endl 
-       << "stdin: "  << stdin.size() << " bytes" << endl 
-       << "stdout: " << stdout.str().size() << " bytes" << endl 
-       << "stderr: " << stderr.str().size() << " bytes" << endl
-       << "Return code = " << rc << endl;
+  xon::obj_builder xb;
+  xb.add("stdout", stdout.str());
+  xb.add("stderr", stderr.str());
+  xb.add("exit", rc);
+  const xon::object output(xb);
+
+  server.send(output);
+  return 0;
 }

@@ -2,11 +2,13 @@ DEFAULT_INCLUDES = -I@top_builddir@/src/
 
 TESTS = \
 	xon_obj_rw xon_objxx_rw \
-	test_client_c test_client_cxx
+	test_client_c test_client_cxx \
+	exec_pipe
 
 check_PROGRAMS = \
 	xon_obj_rw xon_objxx_rw \
-	test_client_c test_client_cxx test_server_c test_server_cxx
+	test_client_c test_client_cxx test_server_c test_server_cxx \
+	exec_pipe
 
 xon_obj_rw_SOURCES = xon_obj_rw.c
 xon_obj_rw_LDADD = @top_builddir@/src/libxon-obj.la
@@ -34,6 +36,15 @@ test_server_cxx_LDADD = \
 	@top_builddir@/src/libxon-objxx.la \
 	@top_builddir@/src/libxon-serverxx.la
 
+test_server_cxx_SOURCES = test_server_cxx.cc
+test_server_cxx_LDADD = \
+	@top_builddir@/src/libxon-objxx.la \
+	@top_builddir@/src/libxon-serverxx.la
+
+exec_pipe_SOURCES = exec_pipe.cc
+exec_pipe_LDADD = \
+	@top_builddir@/src/libxon-objxx.la \
+	@top_builddir@/src/libxon-clientxx.la
 
 
 AM_CFLAGS = -Wall -g -O0

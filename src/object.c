@@ -4,6 +4,7 @@
 #include <malloc.h>
 #include <assert.h>
 #include <endian.h>
+#include <ctype.h>
 
 #include "macros.h"
 #include "xon/object.h"
@@ -558,6 +559,19 @@ char* xon_obj_string(xon_obj obj)
 }
 
 
+static inline
+char *safe_strdup(const char *string)
+{
+  char *str = strdup(string);
+  if (str == NULL)
+    return NULL;
+  for (size_t i=0; i<strlen(str); i++)
+    if (!isprint(str[i]))
+      str[i] = '.';
+  return str;
+}
+
+
 EXPORTED_SYMBOL_C
 char* xon_obj_string_indent
 (xon_obj obj, bool address, const char *prefix)
@@ -592,10 +606,13 @@ char* xon_obj_string_indent
     else
       strncpy(addr, prefix, max_len);
 
+    char *value_str;
     switch (type){
     case XON_ELEMENT_STRING:
+      value_str = safe_strdup(xon_obj_reader_get_string_pos(reader, i));
       snprintf(line, max_len, "%s %s \"%s\": \"%s\",", 
-               addr, prefix, key, xon_obj_reader_get_string_pos(reader, i));
+               addr, prefix, key, value_str);
+      free(value_str);
       break;
     case XON_ELEMENT_DOUBLE:
       snprintf(line, max_len, "%s %s \"%s\": %g,", 

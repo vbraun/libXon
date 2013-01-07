@@ -18,11 +18,11 @@ void test(const std::string command)
   xon::object obj = xb.get();
   cout << "Query:" << endl << obj << endl;
 
-  xon::client client_c(command);
-  client_c.send(obj);
+  xon::client client(command);
+  client.send(obj);
   
-  xon::object result_c = client_c.receive();
-  cout << "Response from C client:" << endl << result_c << endl;
+  xon::object result = client.receive();
+  cout << "Response from C client:" << endl << result << endl;
 }
 
 

@@ -98,4 +98,8 @@ xon_server_exec_pipe_SOURCES = \
 	cookie.h cookie.cc \
 	exec_pipe.cc 
 
+xon_server_exec_pipe_LDADD = \
+	libxon-objxx.la \
+	libxon-serverxx.la
+
 xon_server_exec_pipe_CXXFLAGS = $(AM_CXXFLAGS)

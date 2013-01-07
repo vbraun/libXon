@@ -2,15 +2,16 @@ AM_CFLAGS = -Wall
 
 lib_LTLIBRARIES = \
 	libxon-obj.la libxon-objxx.la \
-	libxon-server.la \
+	libxon-server.la libxon-serverxx.la \
 	libxon-client.la libxon-clientxx.la
 
 nobase_include_headers = \
+	xon/support.h \
 	xon/constants.h \
 	xon/status.h \
 	xon/object.h xon/object.hh \
 	xon/client.h xon/client.hh \
-	xon/server.h \
+	xon/server.h xon/server.hh \
 	xon/exceptions.hh
 
 bin_PROGRAMS = xon_server_exec_pipe
@@ -79,7 +80,22 @@ libxon_server_la_CFLAGS = \
 
 
 ##################################################################
+libxon_serverxx_la_SOURCES = \
+	server.cc xon/server.h \
+	xon/constants.h xon/object.h \
+	macros.h align.h \
+	cookie.h cookie.cc \
+	socket_comm.h socket_comm.cc
+
+libxon_serverxx_la_CXXFLAGS = \
+	-DBUILDING_XON_LIBRARY_CPP \
+	-DCONFIG_H $(CFLAG_VISIBILITY)
+
+
+##################################################################
 xon_server_exec_pipe_SOURCES = \
 	subprocess.h subprocess.cc \
 	cookie.h cookie.cc \
 	exec_pipe.cc 
+
+xon_server_exec_pipe_CXXFLAGS = $(AM_CXXFLAGS)

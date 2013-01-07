@@ -212,8 +212,8 @@ int client_connect(const char*cookie)
 xon_status socket_send(int sockfd, const void *data, size_t size) 
 {
   char *buf = (char*)data;
-  int bytes_sent = 0;
-  int bytes_left = size;
+  size_t bytes_sent = 0;
+  size_t bytes_left = size;
   while (bytes_sent < size) {
     int n = send(sockfd, buf + bytes_sent, bytes_left, 0);
     if (n == -1) 

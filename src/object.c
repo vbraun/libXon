@@ -242,6 +242,31 @@ xon_status xon_obj_builder_add_int64
 
 
 EXPORTED_SYMBOL_C
+xon_status xon_obj_builder_add_bool
+(xon_obj_builder builder, const char *key, bool value)
+{
+  size_t key_len = strlen(key)+1;
+  size_t value_len = sizeof(bool);
+  size_t aligned_key_len = ALIGN_ROUND_UP_SIZE(key_len);
+  size_t aligned_value_len = ALIGN_ROUND_UP_SIZE(value_len);
+  xon_status rc;
+  rc = ensure_capacity(builder, ALIGN_BYTES + aligned_key_len + aligned_value_len);
+  if (rc != XON_OK)
+    return rc;
+
+  *((int*)builder->end) = XON_ELEMENT_BOOLEAN;
+  builder->end += ALIGN_BYTES;
+  
+  memcpy(builder->end, key, key_len);
+  builder->end += aligned_key_len;
+
+  *((bool*)builder->end) = value;
+  builder->end += aligned_value_len;
+  return XON_OK;
+}
+
+
+EXPORTED_SYMBOL_C
 xon_obj xon_obj_builder_get(xon_obj_builder builder)
 {
   ptrdiff_t length = builder->end - builder->buf;
@@ -347,6 +372,9 @@ xon_obj_reader xon_obj_reader_new(xon_obj obj)
       break;
     case XON_ELEMENT_INT64:
       pos += ALIGN_ROUND_UP_SIZE(sizeof(int64_t)); 
+      break;
+    case XON_ELEMENT_BOOLEAN:
+      pos += ALIGN_ROUND_UP_SIZE(sizeof(bool)); 
       break;
     default:
       error_printf("libxon-obj: Unsupported type: 0x%x\n", (unsigned int)type);
@@ -502,6 +530,22 @@ int64_t xon_obj_reader_get_int64_key(xon_obj_reader reader, const char *key)
 
 
 EXPORTED_SYMBOL_C
+bool xon_obj_reader_get_bool_pos(xon_obj_reader reader, int pos)
+{
+  check_type(reader, pos, XON_ELEMENT_BOOLEAN);
+  return *(bool*)(reader->values[pos]);
+}
+
+
+EXPORTED_SYMBOL_C
+bool xon_obj_reader_get_bool_key(xon_obj_reader reader, const char *key)
+{
+  const int pos = find_position(reader, XON_ELEMENT_BOOLEAN, key);
+  return *(bool*)(reader->values[pos]);
+}
+
+
+EXPORTED_SYMBOL_C
 void xon_obj_reader_delete(xon_obj_reader reader)
 {
   free(reader->types);
@@ -626,6 +670,11 @@ char* xon_obj_string_indent
       snprintf(line, max_len, "%s %s \"%s\": %li,", 
                addr, prefix, key, xon_obj_reader_get_int64_pos(reader, i));
       break;
+    case XON_ELEMENT_BOOLEAN:
+      snprintf(line, max_len, "%s %s \"%s\": %s,", 
+               addr, prefix, key, 
+               xon_obj_reader_get_bool_pos(reader, i) ? "true" : "false" );
+      break;
     default:
       snprintf(line, max_len, "%s %s \"%s\": unknown type at %p,", 
                addr, prefix, key, xon_obj_reader_get_value_pos(reader, i));
@@ -667,6 +716,34 @@ char* xon_obj_string_indent
   xon_obj_reader_delete(reader);
   return output;
 }
+
+
+EXPORTED_SYMBOL_C
+void xon_obj_hexdump(xon_obj obj)
+{
+  char *begin = (char*) obj;
+  char *end   = begin + xon_obj_size(obj);
+
+  const char* address = "0x%.8x:  ";
+  for (char *p = begin; p != end; p++) {
+
+    if ((p-begin) % 16 == 0) {
+      if (p != begin)
+        printf("\n");
+      printf(address, p-begin);
+    } else if ((p-begin) % 8 == 0) {
+      printf(" :");
+    }
+
+    unsigned char ch = *p;
+    if (isprint(ch))
+      printf("  %c", ch);
+    else
+      printf(" %.2x", ch);
+  }
+  printf("\n");
+}
+
 
 
 NAMESPACE_XON_C_API_END

@@ -20,6 +20,7 @@ int main(void) {
   void* obj = xon_obj_builder_get(xb);
   printf("\nFirst object\n");
   xon_obj_print(obj);
+  xon_obj_hexdump(obj);
   printf("Size = %zu bytes\n\n", xon_obj_size(obj));
   // We are responsible to free the memory used by obj
   free(obj);  

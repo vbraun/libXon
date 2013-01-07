@@ -66,6 +66,8 @@ public:
   const obj_reader read_obj() const;
   //! Return a pointer to the memory block
   const void* pointer() const;
+  //! Debug output
+  void hexdump() const;
   //! Pretty print
   friend std::ostream& operator << (std::ostream &out, const object& o);
 };
@@ -80,10 +82,12 @@ protected:
   friend class object;
   virtual c_api::xon_obj get_c_api() = 0;
 public:
-  virtual builder& add(std::string key, std::string value) = 0;
+  virtual builder& add(std::string key, const char* value) = 0;
+  virtual builder& add(std::string key, std::string value);
   virtual builder& add(std::string key, double value) = 0;
   virtual builder& add(std::string key, int32_t value) = 0;
   virtual builder& add(std::string key, int64_t value) = 0;
+  virtual builder& add(std::string key, bool value) = 0;
   object get();
 };
 
@@ -99,10 +103,12 @@ public:
   obj_builder();
   obj_builder(int) {};
   virtual ~obj_builder();
-  virtual obj_builder& add(std::string key, std::string value);
+  using builder::add;  // access add(std::string, std::string)
+  virtual obj_builder& add(std::string key, const char* value);
   virtual obj_builder& add(std::string key, double value);
   virtual obj_builder& add(std::string key, int32_t value);
   virtual obj_builder& add(std::string key, int64_t value);
+  virtual obj_builder& add(std::string key, bool value);
 };
 
 
@@ -126,6 +132,8 @@ public:
   virtual int32_t     get_int32 (int pos) const = 0;
   virtual int64_t     get_int64 (std::string key) const = 0;
   virtual int64_t     get_int64 (int pos) const = 0;
+  virtual bool        get_bool  (std::string key) const = 0;
+  virtual bool        get_bool  (int pos) const = 0;
 };
 
 
@@ -146,6 +154,8 @@ public:
   virtual int32_t     get_int32 (int pos) const;
   virtual int64_t     get_int64 (std::string key) const;
   virtual int64_t     get_int64 (int pos) const;
+  virtual bool        get_bool  (std::string key) const;
+  virtual bool        get_bool  (int pos) const;
 };
 
 

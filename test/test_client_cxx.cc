@@ -22,7 +22,8 @@ void test(const std::string command)
   client.send(obj);
   
   xon::object result = client.receive();
-  cout << "Response from C client:" << endl << result << endl;
+  cout << "Response from " << command << ": " << endl << result << endl;
+  client.wait(4);
 }
 
 

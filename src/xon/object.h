@@ -143,6 +143,18 @@ xon_status xon_obj_builder_add_int64
 (xon_obj_builder builder, const char *key, int64_t value);
 
 
+/*! @brief Add a boolean
+ *
+ *  @param builder the builder
+ *  @param key the key under which to add the string
+ *  @param value the boolean to add
+ *  
+ *  Returns XON_ERROR_MALLOC if the buffer needed to be reallocated
+ *  but malloc failed. Nothing is added in this case.
+ */
+xon_status xon_obj_builder_add_bool
+(xon_obj_builder builder, const char *key, bool value);
+
 
 /*! @brief Create a binary object
  *
@@ -287,8 +299,8 @@ double xon_obj_reader_get_double_key(xon_obj_reader reader, const char *key);
  *  It is your responsibility to ensure that the type of the value
  *  actually is 32-bit int. See also xon_obj_reader_type.
  */
-int32_t xon_obj_reader_get_int32(xon_obj_reader reader, int pos);
-/*! @brief Like xon_obj_reader_get_int32, but with key instead of position */
+int32_t xon_obj_reader_get_int32_pos(xon_obj_reader reader, int pos);
+/*! @brief Like xon_obj_reader_get_int32_pos, but with key instead of position */
 int32_t xon_obj_reader_get_int32_key(xon_obj_reader reader, const char *key);
 
 
@@ -303,6 +315,20 @@ int32_t xon_obj_reader_get_int32_key(xon_obj_reader reader, const char *key);
 int64_t xon_obj_reader_get_int64_pos(xon_obj_reader reader, int pos);
 /*! @brief Like xon_obj_reader_get_int64_pos, but with key instead of position */
 int64_t xon_obj_reader_get_int64_key(xon_obj_reader reader, const char *key);
+
+
+/*! @brief Get the boolean at position pos
+ *
+ *  @param reader the reader (deserializer)
+ *  @param pos the position of the entry
+ * 
+ *  It is your responsibility to ensure that the type of the value
+ *  actually is boolean. See also xon_obj_reader_type.
+ */
+bool xon_obj_reader_get_bool_pos(xon_obj_reader reader, int pos);
+/*! @brief Like xon_obj_reader_get_bool_pos, but with key instead of position */
+bool xon_obj_reader_get_bool_key(xon_obj_reader reader, const char *key);
+
 
 
 /*! @brief Destroy the reader
@@ -354,6 +380,13 @@ size_t xon_obj_size(xon_obj obj);
  *  @param obj the binary object
  */
 void xon_obj_print(xon_obj obj);
+
+
+/*! @brief Debug print obj to stdout
+ *
+ *  @param obj the binary object
+ */
+void xon_obj_hexdump(xon_obj obj);
 
 
 /*! @brief Print obj to stdout

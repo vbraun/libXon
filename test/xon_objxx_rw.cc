@@ -56,7 +56,6 @@ void test_cplusplus_api()
 
   // We need only one object builder
   xon::obj_builder xb;
-  xb.get();
 
   // Construct the first object
   xb.add("key", "value");
@@ -71,6 +70,7 @@ void test_cplusplus_api()
        << endl << obj
        << "Size = " << obj.size() << " bytes" 
        << endl << endl;
+  obj.hexdump();
 
   // Construct the second object, 
   xb.add("key",   "0123456");

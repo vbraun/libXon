@@ -41,10 +41,9 @@ void fini()
 
 void object::decref()
 {
-  std::cout << "decref " << ptr << " count=" << *refcount << std::endl;
+  // std::cout << "decref " << ptr << " count=" << *refcount << std::endl;
   (*refcount)--;
   if (*refcount == 0) {
-    std::cout << "decref free" << std::endl;
     free(ptr);
     delete refcount;
   }
@@ -52,7 +51,7 @@ void object::decref()
 
 void object::refer(const object& o)
 {
-  std::cout << "refer " << o.ptr << " count=" << *(o.refcount) << std::endl;
+  // std::cout << "refer " << o.ptr << " count=" << *(o.refcount) << std::endl;
   refcount = o.refcount;
   ptr = o.ptr;
   (*refcount)++;
@@ -132,6 +131,11 @@ const obj_reader object::read_obj() const
   return obj_reader(*this);
 }
 
+EXPORTED_SYMBOL_CPP
+void object::hexdump() const
+{
+  c_api::xon_obj_hexdump(ptr);
+}
 
 EXPORTED_SYMBOL_CPP
 std::ostream& operator << (std::ostream &out, const object& object)
@@ -160,6 +164,14 @@ object builder::get()
   return object(get_c_api());
 }
 
+EXPORTED_SYMBOL_CPP
+builder& builder::add(std::string key, std::string value)
+{
+  add(key, value.c_str());
+  return *this;
+}
+
+
 
 /*******************************************************
  *
@@ -187,9 +199,9 @@ c_api::xon_obj obj_builder::get_c_api()
 }
 
 EXPORTED_SYMBOL_CPP
-obj_builder& obj_builder::add(std::string key, std::string value)
+obj_builder& obj_builder::add(std::string key, const char *value)
 {
-  c_api::xon_obj_builder_add_string(ptr, key.c_str(), value.c_str());
+  c_api::xon_obj_builder_add_string(ptr, key.c_str(), value);
   return *this;
 }
 
@@ -214,6 +226,12 @@ obj_builder& obj_builder::add(std::string key, int64_t value)
   return *this;
 }
 
+EXPORTED_SYMBOL_CPP
+obj_builder& obj_builder::add(std::string key, bool value)
+{
+  c_api::xon_obj_builder_add_bool(ptr, key.c_str(), value);
+  return *this;
+}
 
 
 
@@ -293,8 +311,6 @@ int32_t obj_reader::get_int32(int pos) const
 EXPORTED_SYMBOL_CPP
 int64_t obj_reader::get_int64(std::string key) const
 {
-  std::cout << "get_int64 key" << std::endl;
-
   return c_api::xon_obj_reader_get_int64_key(ptr, key.c_str());
 }
 
@@ -302,6 +318,18 @@ EXPORTED_SYMBOL_CPP
 int64_t obj_reader::get_int64(int pos) const
 {  
   return c_api::xon_obj_reader_get_int64_pos(ptr, pos);
+}
+
+EXPORTED_SYMBOL_CPP
+bool obj_reader::get_bool(std::string key) const
+{
+  return c_api::xon_obj_reader_get_bool_key(ptr, key.c_str());
+}
+
+EXPORTED_SYMBOL_CPP
+bool obj_reader::get_bool(int pos) const
+{
+  return c_api::xon_obj_reader_get_bool_pos(ptr, pos);
 }
 
 

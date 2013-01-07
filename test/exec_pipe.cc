@@ -16,6 +16,7 @@ int main(void)
   xon::obj_builder xb;
   xb.add("command", "bc");
   xb.add("stdin", "2^3^4\n");
+  xb.add("quit", true);
   
   xon::object input(xb);
   cout << "Sending for evaluation:" << endl << input << endl;

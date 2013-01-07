@@ -21,7 +21,12 @@ xon_obj make_obj()
 
 
 
-int main(void)
+
+
+
+
+
+int test(const char* command)
 {
   xon_client client = xon_client_new("./test_server_c");
   if (client == NULL) {
@@ -59,4 +64,14 @@ int main(void)
   
   xon_client_delete(client);
   return 0;
+}
+
+
+int main(void)
+{
+  int rc = test("./test_server_c");
+  if (rc != 0)
+    return rc;
+  rc = test("./test_server_cxx");
+  return rc;
 }

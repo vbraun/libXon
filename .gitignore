@@ -19,3 +19,4 @@ test/test_server_c
 test/test_server_cxx
 test/test_client_c
 test/test_client_cxx
+src/xon_server_exec_pipe

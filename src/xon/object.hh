@@ -117,6 +117,7 @@ protected:
   const object obj;
 public:
   reader(const object& o);
+  virtual bool has_key(std::string key) const = 0;
   virtual std::string get_string(std::string key) const = 0;
   virtual std::string get_string(int pos) const = 0;
   virtual double      get_double(std::string key) const = 0;
@@ -136,6 +137,7 @@ private:
 public:
   obj_reader(const object& o);
   virtual ~obj_reader();
+  virtual bool has_key(std::string key) const;
   virtual std::string get_string(std::string key) const;
   virtual std::string get_string(int pos) const;
   virtual double      get_double(std::string key) const;

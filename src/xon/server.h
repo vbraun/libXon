@@ -1,24 +1,15 @@
 #ifndef XON__SERVER__H
 #define XON__SERVER__H
 
-/** @file */ 
+#include <xon/support.h>
 
-#ifndef __cplusplus
-#include <stdbool.h>
-#endif 
+/** @file */ 
 
 #include <xon/object.h>
 
+NAMESPACE_XON_C_API_BEGIN
 
-#ifdef __cplusplus
-#define EXTERN_C_BEGIN  extern "C" {
-#define EXTERN_C_END    }
-#else
-#define EXTERN_C_BEGIN
-#define EXTERN_C_END
-#endif
 
-EXTERN_C_BEGIN
 
 
 /*******************************************************
@@ -32,7 +23,7 @@ EXTERN_C_BEGIN
  *  All public functions take / return such pointers, never the actual
  *  struct.
  */
-typedef struct xon_server *xon_server;
+typedef struct xon_server_struct *xon_server;
 
 
 /*! @brief Create a new server
@@ -70,6 +61,6 @@ xon_status xon_server_receive(xon_server server, xon_obj *obj_ptr);
 
 
 
-EXTERN_C_END
+NAMESPACE_XON_C_API_END
 
 #endif /* XON__SERVER__H */

@@ -20,7 +20,7 @@ NAMESPACE_XON_C_API_BEGIN
  *  session. Everything in this struct is an implementation detail and
  *  subject to change without notice.
  */
-struct xon_server {
+struct xon_server_struct {
   /*! @brief Socket to communicate with client */
   int sockfd;
 };
@@ -55,7 +55,7 @@ EXPORTED_SYMBOL_C
 xon_server xon_server_new()
 {
   xon_server server = (xon_server)
-    malloc(sizeof(struct xon_server));
+    malloc(sizeof(struct xon_server_struct));
   bool good = (server != NULL);
   
   if (good) {

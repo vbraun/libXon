@@ -57,7 +57,7 @@ pid_t run_subprocess(const char *dst, const char *cookie)
     execle(dst, dst, NULL, env);
 #endif
     error_printf("Failed to execute %s: %s\n", dst, strerror(errno));
-    return 0;
+    exit(EXIT_FAILURE);
   } else if (pid < 0) {  // failed to fork
     error_printf("Failed to fork (out of memory?).\n");
     return 0;

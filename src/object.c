@@ -386,6 +386,16 @@ const char* xon_obj_reader_key(xon_obj_reader reader, int pos)
 
 
 EXPORTED_SYMBOL_C
+bool xon_obj_reader_has_key(xon_obj_reader reader, const char *key)
+{
+  for (int i=0; i < reader->n_elements; i++)
+    if (strcmp(key, reader->keys[i]) == 0)
+      return true;
+  return false;
+}
+
+
+EXPORTED_SYMBOL_C
 void* xon_obj_reader_get_value_pos(xon_obj_reader reader, int pos)
 {
   return reader->values[pos];

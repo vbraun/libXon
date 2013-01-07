@@ -232,6 +232,14 @@ int xon_obj_reader_type(xon_obj_reader reader, int pos);
  */
 const char* xon_obj_reader_key(xon_obj_reader reader, int pos);
 
+/*! @brief Whether the given key exists
+ *
+ *  @param reader the reader (deserializer)
+ *  @param key the key
+ *  @return boolean. True if key has a value.
+ */
+bool xon_obj_reader_has_key(xon_obj_reader reader, const char *key);
+
 
 /*! @brief Get the value of the entry at position pos
  *

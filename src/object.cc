@@ -249,6 +249,12 @@ obj_reader::~obj_reader()
 }
 
 EXPORTED_SYMBOL_CPP
+bool obj_reader::has_key(std::string key) const
+{
+  return c_api::xon_obj_reader_has_key(ptr, key.c_str());
+}
+
+EXPORTED_SYMBOL_CPP
 std::string obj_reader::get_string(std::string key) const
 {
   return std::string(c_api::xon_obj_reader_get_string_key(ptr, key.c_str()));

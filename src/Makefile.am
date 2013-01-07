@@ -13,6 +13,9 @@ nobase_include_headers = \
 	xon/server.h \
 	xon/exceptions.hh
 
+bin_PROGRAMS = xon_server_exec_pipe
+
+
 ##################################################################
 libxon_obj_la_SOURCES = \
 	object.c xon/object.h macros.h align.h xon/constants.h \
@@ -74,3 +77,9 @@ libxon_server_la_CFLAGS = \
 	-DBUILDING_XON_LIBRARY_C \
 	-DCONFIG_H $(CFLAG_VISIBILITY)
 
+
+##################################################################
+xon_server_exec_pipe_SOURCES = \
+	subprocess.h subprocess.cc \
+	cookie.h cookie.cc \
+	exec_pipe.cc 

@@ -19,5 +19,8 @@ test/test_server_c
 test/test_server_cxx
 test/test_client_c
 test/test_client_cxx
+test/speed_client
+test/speed_server
 src/xon_server_exec_pipe
 test/exec_pipe
+build/

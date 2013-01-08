@@ -5,7 +5,7 @@ lib_LTLIBRARIES = \
 	libxon-server.la libxon-serverxx.la \
 	libxon-client.la libxon-clientxx.la
 
-nobase_include_headers = \
+nobase_include_HEADERS = \
 	xon/support.h \
 	xon/constants.h \
 	xon/status.h \

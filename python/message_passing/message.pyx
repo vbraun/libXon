@@ -1,7 +1,7 @@
 
 
 
-cdef class binary_object(object):
+cdef class BinaryObject(object):
 
     def __cinit__(self):
         self.obj = NULL
@@ -13,6 +13,9 @@ cdef class binary_object(object):
 
     def __init__(self, dictionary):
         self._init_from_dict(dictionary)
+
+    cdef _init_from_object(self, xon_object obj):
+        self.obj = new xon_object(obj)
     
     cdef _init_from_dict(self, dict dictionary):
         cdef xon_obj_builder builder
@@ -80,3 +83,30 @@ cdef class binary_object(object):
         
 
 
+
+
+cdef class Client(object):
+
+    def __cinit__(self):
+        self.thisptr = NULL
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def __init__(self, command):
+        self.thisptr = new xon_client(command)
+
+    cpdef send(self, dict dictionary):
+        cdef BinaryObject msg = BinaryObject(dictionary)
+        self.thisptr.send(msg.obj[0])
+        
+    cpdef BinaryObject receive(self):
+        cdef BinaryObject msg = BinaryObject.__new__(BinaryObject)
+        msg._init_from_object(self.thisptr.receive())
+        return msg
+
+    cpdef wait(self, float timeout=5):
+        self.thisptr.wait(timeout)
+    
+    cpdef kill(self):
+        self.thisptr.kill()

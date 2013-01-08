@@ -1,11 +1,12 @@
 
 include 'message.pxi'
 
-cdef class binary_object(object):
+cdef class BinaryObject(object):
     cdef xon_object *obj
     cdef xon_obj_reader *reader
 
     cdef _init_from_dict(self, dict dictionary)
+    cdef _init_from_object(self, xon_object obj)
     cdef xon_reader* _reader(self)
     cdef int _find(self, string key)
     cdef _get_key(self, string key)
@@ -33,3 +34,12 @@ cdef class binary_object(object):
     # __contains__
     # __getattribute__  
     # __hash__
+
+
+
+cdef class Client(object):
+    cdef xon_client *thisptr
+    cpdef send(self, dict dictionary)
+    cpdef BinaryObject receive(self)
+    cpdef wait(self, float timeout=?)
+    cpdef kill(self)

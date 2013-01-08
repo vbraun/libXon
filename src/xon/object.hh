@@ -164,6 +164,12 @@ public:
   virtual int64_t     get_int64 (int pos) const = 0;
   virtual bool        get_bool  (std::string key) const = 0;
   virtual bool        get_bool  (int pos) const = 0;
+
+  virtual std::string get_string(std::string key, std::string default_value) const;
+  virtual double      get_double(std::string key, double      default_value) const;
+  virtual int32_t     get_int32 (std::string key, int32_t     default_value) const;
+  virtual int64_t     get_int64 (std::string key, int64_t     default_value) const;
+  virtual bool        get_bool  (std::string key, bool        default_value) const;
 };
 
 
@@ -192,6 +198,11 @@ public:
   virtual int64_t     get_int64 (int pos) const;
   virtual bool        get_bool  (std::string key) const;
   virtual bool        get_bool  (int pos) const;
+  using reader::get_string;
+  using reader::get_double;
+  using reader::get_int32;
+  using reader::get_int64;
+  using reader::get_bool;
 };
 
 

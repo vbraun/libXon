@@ -18,7 +18,7 @@ int main(void)
     const xon::object obj = server.receive();
     const xon::obj_reader xr(obj);
     
-    if (xr.get_bool("quit"))
+    if (xr.get_bool("quit", false))
       break;
 
     int64_t x = xr.get_int64("x");

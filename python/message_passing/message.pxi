@@ -38,6 +38,7 @@ cdef extern from "xon/object.hh" namespace "xon":
 
     cdef cppclass xon_object:
         xon_object(void *data)
+        xon_object(xon_object)
         size_t size()
         bint is_bson()
         bint is_host_arch()
@@ -82,3 +83,16 @@ cdef extern from "xon/object.hh" namespace "xon":
     cdef cppclass xon_obj_reader(xon_reader):
         xon_obj_reader(xon_object&)
         
+
+
+
+cdef extern from "xon/client.hh" namespace "xon":
+    
+    cdef cppclass xon_client "xon::client":
+        xon_client(string command)
+        void send(xon_object obj)
+        xon_object receive()
+        void wait(float timeout)
+        void kill()
+
+    

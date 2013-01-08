@@ -28,12 +28,11 @@ int main(void)
   struct timeval t_begin, t_end;
 
   xon::obj_builder xb;
-  xon::client client("./speed_server");
+  xon::client client("../src/xon_server_speed_test");
 
   gettimeofday(&t_begin, NULL);
   const int64_t N = 10000;
   for (int64_t x = 0; x < N; x++) {
-    xb.add("quit", false);
     xb.add("x", x);
     const xon::object input = xb.get();
     client.send(input);

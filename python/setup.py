@@ -8,7 +8,7 @@ setup(
         Extension('message_passing.message', 
                   language='c++',
                   sources=['message_passing/message.pyx'],
-                  libraries=['xon-objectxx']
+                  libraries=['xon-objectxx', 'xon-clientxx']
                   )
         ]
     )

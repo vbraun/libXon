@@ -171,23 +171,30 @@ int main(void)
   using namespace std;
 
   xon::server server;
-  const xon::object input = server.receive();
+
+  while (true) {
+    const xon::object input = server.receive();
+    const xon::obj_reader xr(input);
   
-  const xon::obj_reader xr(input);
-  const string command = xr.get_string("command");
-  const string stdin = xr.get_string("stdin");
-  vector<string> args; // todo
+    if (xr.get_bool("quit", false))
+      break;
 
-  stringstream stdout;
-  stringstream stderr;
-  int rc = communicate(command, args, stdin, stdout, stderr);
+    const string command = xr.get_string("command");
+    const string stdin = xr.get_string("stdin");
+    vector<string> args; // todo
 
-  xon::obj_builder xb;
-  xb.add("stdout", stdout.str());
-  xb.add("stderr", stderr.str());
-  xb.add("exit", rc);
-  const xon::object output(xb);
+    stringstream stdout;
+    stringstream stderr;
+    int rc = communicate(command, args, stdin, stdout, stderr);
 
-  server.send(output);
+    xon::obj_builder xb;
+    xb.add("stdout", stdout.str());
+    xb.add("stderr", stderr.str());
+    xb.add("exit", rc);
+    const xon::object output(xb);
+
+    server.send(output);
+  }
+
   return 0;
 }

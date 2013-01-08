@@ -14,7 +14,9 @@ nobase_include_HEADERS = \
 	xon/server.h xon/server.hh \
 	xon/exceptions.hh
 
-bin_PROGRAMS = xon_server_exec_pipe
+bin_PROGRAMS = \
+	xon_server_exec_pipe \
+	xon_server_speed_test
 
 
 ##################################################################
@@ -103,3 +105,15 @@ xon_server_exec_pipe_LDADD = \
 	libxon-serverxx.la
 
 xon_server_exec_pipe_CXXFLAGS = $(AM_CXXFLAGS)
+
+
+##################################################################
+xon_server_speed_test_SOURCES = speed_server.cc
+
+xon_server_speed_test_LDADD = \
+	libxon-objectxx.la \
+	libxon-serverxx.la
+
+xon_server_speed_test_CXXFLAGS = $(AM_CXXFLAGS)
+
+

@@ -301,6 +301,57 @@ reader::reader(const object& o)
 }
 
 
+EXPORTED_SYMBOL_CPP
+std::string reader::get_string(std::string key, std::string default_value) const
+{
+  int pos = find(key, XON_ELEMENT_STRING);
+  if (pos < 0)
+    return default_value;
+  else
+    return get_string(pos);
+}
+
+EXPORTED_SYMBOL_CPP
+double reader::get_double(std::string key, double default_value) const
+{
+  int pos = find(key, XON_ELEMENT_DOUBLE);
+  if (pos < 0)
+    return default_value;
+  else
+    return get_double(pos);
+}
+
+EXPORTED_SYMBOL_CPP
+int32_t reader::get_int32(std::string key, int32_t default_value) const
+{
+  int pos = find(key, XON_ELEMENT_INT32);
+  if (pos < 0)
+    return default_value;
+  else
+    return get_int32(pos);
+}
+
+EXPORTED_SYMBOL_CPP
+int64_t reader::get_int64(std::string key, int64_t default_value) const
+{
+  int pos = find(key, XON_ELEMENT_INT64);
+  if (pos < 0)
+    return default_value;
+  else
+    return get_int64(pos);
+}
+
+EXPORTED_SYMBOL_CPP
+bool reader::get_bool(std::string key, bool default_value) const
+{
+  int pos = find(key, XON_ELEMENT_BOOLEAN);
+  if (pos < 0)
+    return default_value;
+  else
+    return get_bool(pos);
+}
+
+
 /*******************************************************
  *
  * Object reader

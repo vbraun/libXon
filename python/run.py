@@ -10,10 +10,10 @@ os.system('python setup.py build_ext --inplace')
 import sys
 sys.path.append('.')
 
-from message_passing.message import binary_object
+from message_passing.message import BinaryObject, Client
 
 
-bob = binary_object({
+bob = BinaryObject({
         "key_string": "value",
         "key_number": 123,
         "key_bool": True
@@ -30,3 +30,36 @@ print bob.get("key_string"), bob.get("key_number"), \
     bob.get("key_bool"), bob.get("foo_bar")
 
 bob.hexdump()
+
+
+exec_pipe = Client(os.path.abspath('../build/bin/xon_server_exec_pipe'))
+
+exec_pipe.send({
+            "command": "cat",
+            "stdin": "hello world"})
+print exec_pipe.receive()
+
+exec_pipe.send({
+            "command": "bc",
+            "stdin": "2^3^4\n"})
+print exec_pipe.receive()
+
+exec_pipe.send({
+            "command": "bc",
+            "stdin": "2^3^4^5\n"})
+print exec_pipe.receive()
+
+exec_pipe.send({"quit": True})
+exec_pipe.wait()
+
+
+
+
+speed_test = Client(os.path.abspath('../build/bin/xon_server_speed_test'))
+for i in xrange(1000):
+    speed_test.send({"x": i})
+    reply = speed_test.receive()
+    assert reply["result"] == i**2
+
+speed_test.send({"quit": True})
+speed_test.wait()

@@ -24,8 +24,8 @@ char magic[2*ALIGN_BYTES];
 CONSTRUCTOR_C
 void init() 
 {
-#ifdef XON_DEBUG  /* make valgrind happy */
-  memset(magic, 0xff, 2*ALIGN_BYTES);
+#ifdef XON_FILL_PADDING  /* make valgrind happy */
+  memset(magic, '.', 2*ALIGN_BYTES);
 #endif
   *((int32_t*)magic) = htole32(XON_MAGIC);
 }
@@ -64,8 +64,8 @@ xon_obj_builder xon_obj_builder_new_with_buf
     (xon_obj_builder)malloc(sizeof(xon_obj_builder_struct));
   if (builder == NULL)
     return NULL;
-#ifdef XON_DEBUG  /* make valgrind happy */
-  memset(initial_buffer, 0xff, size);
+#ifdef XON_FILL_PADDING  /* make valgrind happy */
+  memset(initial_buffer, '.', size);
 #endif
   memcpy(initial_buffer, magic, 2*ALIGN_BYTES);
 
@@ -453,7 +453,26 @@ bool check_type(xon_obj_reader reader, int pos, int type)
 }
 
 
-static inline 
+EXPORTED_SYMBOL_C
+int xon_obj_reader_find(xon_obj_reader reader, const char *key)
+{
+  for (int i = 0; i < reader->n_elements; i++)
+    if (strcmp(key, reader->keys[i]) == 0)
+      return i;
+  return -1;
+}
+
+EXPORTED_SYMBOL_C
+int xon_obj_reader_find_type(xon_obj_reader reader, int type, const char *key)
+{
+  for (int i = 0; i < reader->n_elements; i++)
+    if ((reader->types[i] == type) && (strcmp(key, reader->keys[i]) == 0))
+      return i;
+  return -1;
+}
+
+
+static inline
 int find_position(xon_obj_reader reader, int type, const char *key)
 {
   for (int i = 0; i < reader->n_elements; i++)
@@ -463,7 +482,6 @@ int find_position(xon_obj_reader reader, int type, const char *key)
                key, type);
   return -1;
 }
-
 
 EXPORTED_SYMBOL_C
 const char* xon_obj_reader_get_string_pos(xon_obj_reader reader, int pos)

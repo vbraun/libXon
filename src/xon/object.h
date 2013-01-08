@@ -225,6 +225,33 @@ xon_obj_reader xon_obj_reader_new(xon_obj obj);
 int xon_obj_reader_count(xon_obj_reader reader);
   
 
+/*! @brief Get the internal position of the key
+ *
+ *  @param reader the reader (deserializer)
+ *  @param key the key
+ *  @return internal position of the key
+ * 
+ *  If you want to look up the type and value of an entry, it is
+ *  faster to find the index of the key once and then access the
+ *  entries by position instead of by key.
+ */
+int xon_obj_reader_find(xon_obj_reader reader, const char *key);
+
+/*! @brief Get the internal position of the key with specific type
+ *
+ *  @param reader the reader (deserializer)
+ *  @param type the entry type you are looking for
+ *  @param key the key
+ *  @return internal position of the key
+ * 
+ *  If you want to look up the type and value of an entry, it is
+ *  faster to find the index of the key once and then access the
+ *  entries by position instead of by key.
+ *
+ *  See the XON_ELEMENT_* constants for the possible type values.
+ */
+int xon_obj_reader_find_type(xon_obj_reader reader, int type, const char *key);
+
 /*! @brief Get the type of the entry at position pos
  *
  *  @param reader the reader (deserializer)

@@ -9,6 +9,7 @@ config.*
 */*/.libs/
 *.la
 *.lo
+*.so
 *.tar.gz
 doc/html
 doc/latex

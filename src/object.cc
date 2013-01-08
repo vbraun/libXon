@@ -2,6 +2,7 @@
 
 #include "macros.h"
 #include "xon/object.hh"
+#include "xon/exceptions.hh"
 
 #include "object.c"
 
@@ -138,9 +139,9 @@ void object::hexdump() const
 }
 
 EXPORTED_SYMBOL_CPP
-std::string object::string() const
+std::string object::string(bool show_address) const
 {
-  char *output = c_api::xon_obj_string(ptr);
+  char *output = c_api::xon_obj_string_indent(ptr, show_address, "");
   std::string result;
   if (output != NULL) {
     result = output;
@@ -177,12 +178,53 @@ object builder::get()
 }
 
 EXPORTED_SYMBOL_CPP
-builder& builder::add(std::string key, std::string value)
+object* builder::get_new()
+{
+  return new object(get_c_api());
+}
+
+EXPORTED_SYMBOL_CPP
+builder& builder::add_string(std::string key, std::string value)
 {
   add(key, value.c_str());
   return *this;
 }
 
+EXPORTED_SYMBOL_CPP
+builder& builder::add(std::string key, const char* value)
+{ 
+  return add_cstr(key, value); 
+}
+
+EXPORTED_SYMBOL_CPP
+builder& builder::add(std::string key, std::string value)
+{ 
+  return add_string(key, value); 
+}
+
+EXPORTED_SYMBOL_CPP
+builder& builder::add(std::string key, double value)
+{ 
+  return add_double(key, value); 
+}
+
+EXPORTED_SYMBOL_CPP
+builder& builder::add(std::string key, int32_t value)
+{ 
+  return add_int32(key, value); 
+}
+
+EXPORTED_SYMBOL_CPP
+builder& builder::add(std::string key, int64_t value)
+{ 
+  return add_int64(key, value); 
+}
+
+EXPORTED_SYMBOL_CPP
+builder& builder::add(std::string key, bool value)
+{ 
+  return add_bool(key, value); 
+}
 
 
 /*******************************************************
@@ -211,35 +253,35 @@ c_api::xon_obj obj_builder::get_c_api()
 }
 
 EXPORTED_SYMBOL_CPP
-obj_builder& obj_builder::add(std::string key, const char *value)
+obj_builder& obj_builder::add_cstr(std::string key, const char *value)
 {
   c_api::xon_obj_builder_add_string(ptr, key.c_str(), value);
   return *this;
 }
 
 EXPORTED_SYMBOL_CPP
-obj_builder& obj_builder::add(std::string key, double value)
+obj_builder& obj_builder::add_double(std::string key, double value)
 {
   c_api::xon_obj_builder_add_double(ptr, key.c_str(), value);
   return *this;
 }
 
 EXPORTED_SYMBOL_CPP
-obj_builder& obj_builder::add(std::string key, int32_t value)
+obj_builder& obj_builder::add_int32(std::string key, int32_t value)
 {
   c_api::xon_obj_builder_add_int32(ptr, key.c_str(), value);
   return *this;
 }
 
 EXPORTED_SYMBOL_CPP
-obj_builder& obj_builder::add(std::string key, int64_t value)
+obj_builder& obj_builder::add_int64(std::string key, int64_t value)
 {
   c_api::xon_obj_builder_add_int64(ptr, key.c_str(), value);
   return *this;
 }
 
 EXPORTED_SYMBOL_CPP
-obj_builder& obj_builder::add(std::string key, bool value)
+obj_builder& obj_builder::add_bool(std::string key, bool value)
 {
   c_api::xon_obj_builder_add_bool(ptr, key.c_str(), value);
   return *this;
@@ -279,9 +321,48 @@ obj_reader::~obj_reader()
 }
 
 EXPORTED_SYMBOL_CPP
+std::string obj_reader::key(int pos) const
+{
+  return std::string(c_api::xon_obj_reader_key(ptr, pos));
+}
+
+EXPORTED_SYMBOL_CPP
 bool obj_reader::has_key(std::string key) const
 {
   return c_api::xon_obj_reader_has_key(ptr, key.c_str());
+}
+
+EXPORTED_SYMBOL_CPP
+int obj_reader::type(std::string key) const
+{
+  int pos = find(key);
+  if (pos<0)
+    throw key_exception("key not found");
+  return c_api::xon_obj_reader_type(ptr, pos);
+}
+
+EXPORTED_SYMBOL_CPP
+int obj_reader::type(int pos) const
+{
+  return c_api::xon_obj_reader_type(ptr, pos);
+}
+
+EXPORTED_SYMBOL_CPP
+int obj_reader::find(std::string key) const
+{
+  return c_api::xon_obj_reader_find(ptr, key.c_str());
+}
+
+EXPORTED_SYMBOL_CPP
+int obj_reader::find(std::string key, int type) const
+{
+  return c_api::xon_obj_reader_find_type(ptr, type, key.c_str());
+}
+
+EXPORTED_SYMBOL_CPP
+int obj_reader::count() const
+{
+  return c_api::xon_obj_reader_count(ptr);
 }
 
 EXPORTED_SYMBOL_CPP

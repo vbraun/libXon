@@ -21,6 +21,14 @@ public:
 };
 
 
+//! The object key is invalid
+class key_exception : public exception
+{
+public:
+  key_exception(const std::string& what) : exception(what) {};
+};
+
+
 //! Error during sending something
 class send_exception : public exception
 {

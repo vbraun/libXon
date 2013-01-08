@@ -6,10 +6,15 @@ cdef class binary_object(object):
     cdef xon_obj_reader *reader
 
     cdef _init_from_dict(self, dict dictionary)
+    cdef xon_reader* _reader(self)
+    cdef int _find(self, string key)
+    cdef _get_key(self, string key)
+    cdef _get_pos(self, int position)
 
     cpdef hexdump(self)
     cpdef bint has_key(self, key)
-    cpdef get(self, key)
+    cpdef get(self, key, default=?)
+
 
     # keys        
     # copy

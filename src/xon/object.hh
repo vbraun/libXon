@@ -67,7 +67,7 @@ public:
   //! Return a pointer to the memory block
   const void* pointer() const;
   //! Pretty print to string
-  std::string string() const;
+  std::string string(bool show_address) const;
   //! Debug output
   void hexdump() const;
   //! Pretty print
@@ -84,13 +84,35 @@ protected:
   friend class object;
   virtual c_api::xon_obj get_c_api() = 0;
 public:
-  virtual builder& add(std::string key, const char* value) = 0;
+  // First, non-overloaded methods. The overloaded add(key, value)
+  // methods are implemented via these. Cython can be a bit
+  // troublesome with overloads, so its helpful to have them.
+  
+  virtual builder& add_cstr  (std::string key, const char* value) = 0;
+  virtual builder& add_string(std::string key, std::string value);
+  virtual builder& add_double(std::string key, double value) = 0;
+  virtual builder& add_int32 (std::string key, int32_t value) = 0;
+  virtual builder& add_int64 (std::string key, int64_t value) = 0;
+  virtual builder& add_bool  (std::string key, bool value) = 0;
+
+  // The overloaded add(key, value) methods
+
+  virtual builder& add(std::string key, const char* value);
   virtual builder& add(std::string key, std::string value);
-  virtual builder& add(std::string key, double value) = 0;
-  virtual builder& add(std::string key, int32_t value) = 0;
-  virtual builder& add(std::string key, int64_t value) = 0;
-  virtual builder& add(std::string key, bool value) = 0;
+  virtual builder& add(std::string key, double value);
+  virtual builder& add(std::string key, int32_t value);
+  virtual builder& add(std::string key, int64_t value);
+  virtual builder& add(std::string key, bool value);
+
+  //! Construct object from previously-added key/value pairs
   object get();
+  //! Construt new object on the heap
+  /*  This method is like get, but returns a pointer to a
+   *  newly-constructed object on the heap instead of the
+   *  stack-allocated object itself. It is your responsibility to
+   *  delete it, otherwise memory will leak.
+   */
+  object* get_new(); 
 };
 
 
@@ -106,11 +128,11 @@ public:
   obj_builder(int) {};
   virtual ~obj_builder();
   using builder::add;  // access add(std::string, std::string)
-  virtual obj_builder& add(std::string key, const char* value);
-  virtual obj_builder& add(std::string key, double value);
-  virtual obj_builder& add(std::string key, int32_t value);
-  virtual obj_builder& add(std::string key, int64_t value);
-  virtual obj_builder& add(std::string key, bool value);
+  virtual obj_builder& add_cstr  (std::string key, const char* value);
+  virtual obj_builder& add_double(std::string key, double value);
+  virtual obj_builder& add_int32 (std::string key, int32_t value);
+  virtual obj_builder& add_int64 (std::string key, int64_t value);
+  virtual obj_builder& add_bool  (std::string key, bool value);
 };
 
 
@@ -125,7 +147,13 @@ protected:
   const object obj;
 public:
   reader(const object& o);
+  virtual int count() const = 0;
+  virtual std::string key(int pos) const = 0;
   virtual bool has_key(std::string key) const = 0;
+  virtual int type(std::string key) const = 0;
+  virtual int type(int pos) const = 0;
+  virtual int find(std::string key) const = 0;
+  virtual int find(std::string key, int type) const = 0;
   virtual std::string get_string(std::string key) const = 0;
   virtual std::string get_string(int pos) const = 0;
   virtual double      get_double(std::string key) const = 0;
@@ -147,7 +175,13 @@ private:
 public:
   obj_reader(const object& o);
   virtual ~obj_reader();
+  virtual int count() const;
+  virtual std::string key(int pos) const;
   virtual bool has_key(std::string key) const;
+  virtual int type(std::string key) const;
+  virtual int type(int pos) const;
+  virtual int find(std::string key) const;
+  virtual int find(std::string key, int type) const;
   virtual std::string get_string(std::string key) const;
   virtual std::string get_string(int pos) const;
   virtual double      get_double(std::string key) const;

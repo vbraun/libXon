@@ -138,6 +138,18 @@ void object::hexdump() const
 }
 
 EXPORTED_SYMBOL_CPP
+std::string object::string() const
+{
+  char *output = c_api::xon_obj_string(ptr);
+  std::string result;
+  if (output != NULL) {
+    result = output;
+    free(output);
+  }
+  return result;
+}
+
+EXPORTED_SYMBOL_CPP
 std::ostream& operator << (std::ostream &out, const object& object)
 {
   char *output = c_api::xon_obj_string(object.ptr);

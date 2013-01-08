@@ -1,7 +1,7 @@
 AM_CFLAGS = -Wall
 
 lib_LTLIBRARIES = \
-	libxon-obj.la libxon-objxx.la \
+	libxon-object.la libxon-objectxx.la \
 	libxon-server.la libxon-serverxx.la \
 	libxon-client.la libxon-clientxx.la
 
@@ -18,21 +18,21 @@ bin_PROGRAMS = xon_server_exec_pipe
 
 
 ##################################################################
-libxon_obj_la_SOURCES = \
+libxon_object_la_SOURCES = \
 	object.c xon/object.h macros.h align.h xon/constants.h \
 	buffer.h buffer.c
 
-libxon_obj_la_CFLAGS = \
+libxon_object_la_CFLAGS = \
 	-DBUILDING_XON_LIBRARY_C \
 	-DCONFIG_H $(CFLAG_VISIBILITY)
 
 
 ##################################################################
-libxon_objxx_la_SOURCES = \
+libxon_objectxx_la_SOURCES = \
 	object.cc xon/object.hh	xon/object.h \
 	macros.h align.h xon/constants.h
 
-libxon_objxx_la_CXXFLAGS = \
+libxon_objectxx_la_CXXFLAGS = \
 	-DBUILDING_XON_LIBRARY_CPP \
 	-DCONFIG_H $(CFLAG_VISIBILITY)
 
@@ -99,7 +99,7 @@ xon_server_exec_pipe_SOURCES = \
 	exec_pipe.cc 
 
 xon_server_exec_pipe_LDADD = \
-	libxon-objxx.la \
+	libxon-objectxx.la \
 	libxon-serverxx.la
 
 xon_server_exec_pipe_CXXFLAGS = $(AM_CXXFLAGS)

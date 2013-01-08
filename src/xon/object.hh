@@ -66,6 +66,8 @@ public:
   const obj_reader read_obj() const;
   //! Return a pointer to the memory block
   const void* pointer() const;
+  //! Pretty print to string
+  std::string string() const;
   //! Debug output
   void hexdump() const;
   //! Pretty print

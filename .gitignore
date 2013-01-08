@@ -24,3 +24,6 @@ test/speed_server
 src/xon_server_exec_pipe
 test/exec_pipe
 build/
+python/*/*.cpp
+*.pyc
+

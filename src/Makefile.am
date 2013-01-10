@@ -109,7 +109,7 @@ libxon_serverxx_la_CXXFLAGS = \
 
 ##################################################################
 xon_server_exec_pipe_SOURCES = \
-	subprocess.h subprocess.cc \
+	subprocess.hh subprocess.cc \
 	cookie.h cookie.cc \
 	exec_pipe.cc 
 
@@ -132,19 +132,22 @@ xon_server_speed_test_CXXFLAGS = $(AM_CXXFLAGS)
 
 ##################################################################
 xon_server_mathlink_SOURCES = \
+	cookie.h cookie.cc \
+	subprocess.hh subprocess.cc \
 	mathlink_interface.hh mathlink_interface.cc \
 	mathlink_server.cc
 
 xon_server_mathlink_LDADD = \
 	libxon-objectxx.la \
 	libxon-serverxx.la \
-	-lML64i3 -lrt -lpthread
+	-ldl
 
 
+#	-lML64i3 -lrt -lpthread
 #	/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/libML64i3.so
 
 xon_server_mathlink_CXXFLAGS = $(AM_CXXFLAGS)
 
-xon_server_mathlink_LDFLAGS = \
-	-L/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions \
-	-Wl,-rpath -Wl,/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions
+#xon_server_mathlink_LDFLAGS = \
+#	-L/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions \
+#	-Wl,-rpath -Wl,/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions

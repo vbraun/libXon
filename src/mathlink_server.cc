@@ -57,7 +57,7 @@ void run_server(void)
   using namespace std;
   using namespace MmaMathLink;
   xon::server server;
-  mathlink ml();
+  mathlink ml = mathlink("");
   packet *pkt = NULL;
   pkt = ml.receive();
   

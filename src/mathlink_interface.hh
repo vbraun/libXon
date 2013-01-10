@@ -70,7 +70,7 @@ protected:
   //! Used when constructing a packet to send
   packet(packet_type type);
 public:
-  ~packet();
+  virtual ~packet();
   packet_header header() const;
   packet_type type() const;
   bool is_valid() const;
@@ -151,7 +151,7 @@ private:
   MLENV ml_env;
   environment();
 public:
-  ~environment();
+  virtual ~environment();
 };
 
 
@@ -164,6 +164,7 @@ private:
   long interface_version, revision_version;
   //! The mathematica root directory, e.g. "/usr/local/Wolfram/Mathematica/9.0"
   std::string root_dir;
+  static void* library_handle;
   void dlopen_mathlink() const;
   void dlopen_mathlink(const std::string shared_library) const;
 protected:

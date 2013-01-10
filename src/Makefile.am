@@ -49,6 +49,9 @@ libxon_client_la_SOURCES = \
 	cookie.h cookie.c \
 	socket_comm.h socket_comm.c
 
+libxon_client_la_LIBADD = \
+	libxon-object.la
+
 libxon_client_la_CFLAGS = \
 	-DBUILDING_XON_LIBRARY_C \
 	-DCONFIG_H $(CFLAG_VISIBILITY)
@@ -64,6 +67,9 @@ libxon_clientxx_la_SOURCES = \
 	socket_comm.h socket_comm.cc \
 	xon/exceptions.hh
 
+libxon_clientxx_la_LIBADD = \
+	libxon-objectxx.la
+
 libxon_clientxx_la_CXXFLAGS = \
 	-DBUILDING_XON_LIBRARY_CPP \
 	-DCONFIG_H $(CFLAG_VISIBILITY)
@@ -77,6 +83,9 @@ libxon_server_la_SOURCES = \
 	cookie.h cookie.c \
 	socket_comm.h socket_comm.c
 
+libxon_server_la_LIBADD = \
+	libxon-object.la
+
 libxon_server_la_CFLAGS = \
 	-DBUILDING_XON_LIBRARY_C \
 	-DCONFIG_H $(CFLAG_VISIBILITY)
@@ -89,6 +98,9 @@ libxon_serverxx_la_SOURCES = \
 	macros.h align.h \
 	cookie.h cookie.cc \
 	socket_comm.h socket_comm.cc
+
+libxon_serverxx_la_LIBADD = \
+	libxon-objectxx.la
 
 libxon_serverxx_la_CXXFLAGS = \
 	-DBUILDING_XON_LIBRARY_CPP \
@@ -119,15 +131,20 @@ xon_server_speed_test_CXXFLAGS = $(AM_CXXFLAGS)
 
 
 ##################################################################
-xon_server_mathlink_SOURCES = mathlink_server.cc
+xon_server_mathlink_SOURCES = \
+	mathlink_interface.hh mathlink_interface.cc \
+	mathlink_server.cc
 
 xon_server_mathlink_LDADD = \
 	libxon-objectxx.la \
 	libxon-serverxx.la \
-	/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/libML64i3.so \
-	-lrt -lpthread
+	-lML64i3 -lrt -lpthread
+
+
+#	/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/libML64i3.so
 
 xon_server_mathlink_CXXFLAGS = $(AM_CXXFLAGS)
 
 xon_server_mathlink_LDFLAGS = \
+	-L/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions \
 	-Wl,-rpath -Wl,/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions

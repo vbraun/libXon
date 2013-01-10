@@ -141,7 +141,7 @@ public:
 
 //! MathLink environment
 /*  Not really interesting for users, no idea what the ML environment
- *  is good for. But RAII dictates that it must be a class, so there
+ *  is good for. But RAII dictates that it must be a class, so here
  *  it is.
  */
 class environment
@@ -149,8 +149,8 @@ class environment
 private:
   friend class mathlink;
   MLENV ml_env;
-public:
   environment();
+public:
   ~environment();
 };
 
@@ -162,12 +162,23 @@ private:
   environment env;
   MLINK ml;
   long interface_version, revision_version;
+  //! The mathematica root directory, e.g. "/usr/local/Wolfram/Mathematica/9.0"
+  std::string root_dir;
+  void dlopen_mathlink() const;
+  void dlopen_mathlink(const std::string shared_library) const;
 protected:
   void print_error();
+  //! Open the MathLink interface
   void open();
   void close();
 public:
-  mathlink();
+  //! Start a MathLink session
+  /*  @param mathematica_root_directory the directory where
+   *         Mathematica is installed, for example
+   *         "/usr/local/Wolfram/Mathematica/9.0". This is the
+   *         $InstallationDirectory variable in Mathematica.
+   */
+  mathlink(const std::string& mathematica_root_directory);
   virtual ~mathlink();
   long interface() const;
   long revision() const;

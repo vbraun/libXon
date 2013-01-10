@@ -11,7 +11,7 @@ void test(void)
 {
   using namespace std;
   using namespace MmaMathLink;
-  mathlink ml;
+  mathlink ml("/usr/local/Wolfram/Mathematica/9.0");
   packet *pkt = NULL;
 
   pkt = ml.receive();
@@ -57,7 +57,7 @@ void run_server(void)
   using namespace std;
   using namespace MmaMathLink;
   xon::server server;
-  mathlink ml;
+  mathlink ml();
   packet *pkt = NULL;
   pkt = ml.receive();
   

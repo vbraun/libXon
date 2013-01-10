@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #include "mathlink_interface.hh"
-
+#include "path.hh"
 
 // We assume that MLINTERFACE >= 3. This version changed the API to
 // return standard C types for a modicum of sanity
@@ -81,17 +81,19 @@ environment::~environment()
   MLDeinitialize(ml_env);
 }
 
+
 /////////////////////////////////////////////////////////
 ///
 ///  Implementation: class mathlink
 ///
 ////////////////////////////////////////////////////////
 
-mathlink::mathlink()
+mathlink::mathlink(const std::string& mathematica_root_directory)
+  : root_dir(mathematica_root_directory)
 {
+  dlopen_mathlink();
   open();
 }
-
 
 mathlink::~mathlink()
 {
@@ -110,11 +112,13 @@ void mathlink::print_error()
 
 void mathlink::open()
 {
+  const std::string command = root_dir + "/Executables/math";
+
   const char *nargv[] = {
     "-linkmode", 
     "launch", 
     "-linkname", 
-    "math", /*math_program+linkname[]+argv[]*/
+    command.c_str(), /*math_program+linkname[]+argv[]*/
     NULL};
 
   int error;
@@ -167,6 +171,16 @@ long mathlink::revision() const
 {
   return revision_version;
 }
+
+void mathlink::dlopen_mathlink(const std::string shared_library) const
+{
+}
+
+void mathlink::dlopen_mathlink() const
+{
+  path p = root_dir + "/SystemFiles/Links/MathLink/DeveloperKit";
+}
+
 
 /////////////////////////////////////////////////////////
 ///

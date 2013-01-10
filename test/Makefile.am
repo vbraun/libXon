@@ -38,11 +38,6 @@ test_server_cxx_LDADD = \
 	@top_builddir@/src/libxon-objectxx.la \
 	@top_builddir@/src/libxon-serverxx.la
 
-test_server_cxx_SOURCES = test_server_cxx.cc
-test_server_cxx_LDADD = \
-	@top_builddir@/src/libxon-objectxx.la \
-	@top_builddir@/src/libxon-serverxx.la
-
 exec_pipe_client_SOURCES = exec_pipe.cc
 exec_pipe_client_LDADD = \
 	@top_builddir@/src/libxon-objectxx.la \

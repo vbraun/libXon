@@ -16,7 +16,8 @@ nobase_include_HEADERS = \
 
 bin_PROGRAMS = \
 	xon_server_exec_pipe \
-	xon_server_speed_test
+	xon_server_speed_test \
+	xon_server_mathlink
 
 
 ##################################################################
@@ -117,3 +118,16 @@ xon_server_speed_test_LDADD = \
 xon_server_speed_test_CXXFLAGS = $(AM_CXXFLAGS)
 
 
+##################################################################
+xon_server_mathlink_SOURCES = mathlink_server.cc
+
+xon_server_mathlink_LDADD = \
+	libxon-objectxx.la \
+	libxon-serverxx.la \
+	/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/libML64i3.so \
+	-lrt -lpthread
+
+xon_server_mathlink_CXXFLAGS = $(AM_CXXFLAGS)
+
+xon_server_mathlink_LDFLAGS = \
+	-Wl,-rpath -Wl,/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions

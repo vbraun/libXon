@@ -1,4 +1,4 @@
-DEFAULT_INCLUDES = -I@top_builddir@/src/
+AM_CPPFLAGS = -I$(top_srcdir)/src/
 
 TESTS = \
 	xon_obj_rw xon_objxx_rw \
@@ -49,3 +49,4 @@ speed_client_LDADD = \
 	@top_builddir@/src/libxon-clientxx.la
 
 AM_CFLAGS = -Wall -g -O0
+AM_CXXFLAGS = -Wall -g -O0

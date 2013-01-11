@@ -22,7 +22,8 @@ bin_PROGRAMS = \
 
 ##################################################################
 libxon_object_la_SOURCES = \
-	object.c xon/object.h macros.h align.h xon/constants.h \
+	object.c xon/object.h xon/constants.h \
+	macros.h align.h debug.h \
 	buffer.h buffer.c
 
 libxon_object_la_CFLAGS = \
@@ -33,7 +34,7 @@ libxon_object_la_CFLAGS = \
 ##################################################################
 libxon_objectxx_la_SOURCES = \
 	object.cc xon/object.hh	xon/object.h \
-	macros.h align.h xon/constants.h
+	macros.h align.h debug.h xon/constants.h
 
 libxon_objectxx_la_CXXFLAGS = \
 	-DBUILDING_XON_LIBRARY_CPP \
@@ -44,7 +45,7 @@ libxon_objectxx_la_CXXFLAGS = \
 libxon_client_la_SOURCES = \
 	client.c xon/client.h \
 	xon/constants.h xon/object.h \
-	macros.h align.h \
+	macros.h align.h debug.h \
 	subprocess.h subprocess.c \
 	cookie.h cookie.c \
 	socket_comm.h socket_comm.c
@@ -61,7 +62,7 @@ libxon_client_la_CFLAGS = \
 libxon_clientxx_la_SOURCES = \
 	client.cc xon/client.hh xon/client.h \
 	xon/constants.h xon/object.h \
-	macros.h align.h \
+	macros.h align.h debug.h \
 	subprocess.h subprocess.cc \
 	cookie.h cookie.cc \
 	socket_comm.h socket_comm.cc \
@@ -79,7 +80,7 @@ libxon_clientxx_la_CXXFLAGS = \
 libxon_server_la_SOURCES = \
 	server.c xon/server.h \
 	xon/constants.h xon/object.h \
-	macros.h align.h \
+	macros.h align.h debug.h \
 	cookie.h cookie.c \
 	socket_comm.h socket_comm.c
 
@@ -95,7 +96,7 @@ libxon_server_la_CFLAGS = \
 libxon_serverxx_la_SOURCES = \
 	server.cc xon/server.h \
 	xon/constants.h xon/object.h \
-	macros.h align.h \
+	macros.h align.h debug.h \
 	cookie.h cookie.cc \
 	socket_comm.h socket_comm.cc
 
@@ -132,6 +133,7 @@ xon_server_speed_test_CXXFLAGS = $(AM_CXXFLAGS)
 
 ##################################################################
 xon_server_mathlink_SOURCES = \
+	macros.h align.h debug.h \
 	cookie.h cookie.cc \
 	subprocess.hh subprocess.cc \
 	mathlink_interface.hh mathlink_interface.cc \

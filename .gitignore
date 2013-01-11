@@ -1,4 +1,5 @@
 *~
+*/stamp-h1
 *Makefile.in
 *Makefile
 *.o
@@ -28,4 +29,4 @@ src/xon_server_mathlink
 build/
 python/*/*.cpp
 *.pyc
-
+libxon-*

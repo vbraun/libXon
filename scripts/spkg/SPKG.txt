@@ -1,0 +1,30 @@
+= libXon =
+
+== Description ==
+
+Lightweight binary objects (similar to BSON) and IPC message passing
+
+== License ==
+
+Dual license, pick your favorite:
+* BSD
+* GPL v3+
+
+== SPKG Maintainers ==
+
+* Volker Braun
+
+== Upstream Contact ==
+
+Volker Braun <vbraun.name@gmail.com>
+
+== Special Update/Build Instructions ==
+
+Use the test/make_spkg.sh script in the repository:
+
+https://github.com/vbraun/libXon
+
+== Changelog ==
+
+=== libXon-1.0.0 (Volker Braun, ...) ===
+ * when its ready ;-)

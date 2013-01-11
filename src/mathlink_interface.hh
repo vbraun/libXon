@@ -11,7 +11,7 @@
 //! This namespace containts a self-contained C++ interface to Mathematica MathLink
 /*  Nothing in here depends on libXon, it is completely independent.
  */
-namespace MmaMathLink {
+namespace mma {
 
 class packet;
 class mathlink;
@@ -212,6 +212,6 @@ public:
 };
 
 
-} // end namespace MmaMathLink
+} // end namespace mma
 
 #endif /* MATHEMATICA_MATHLINK_INTERFACE__HH */

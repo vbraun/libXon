@@ -1,5 +1,7 @@
-#include <cassert>
 #include <ctype.h>
+
+#include <cassert>
+#include <sstream>
 
 #include "xon/server.hh"
 #include "debug.h"
@@ -15,16 +17,23 @@
 
 std::string find_root_dir(const std::string& cmd)
 {
+  using namespace std;
   xon::subprocess math = xon::subprocess(cmd);
   math << "$InstallationDirectory\n";
-  const std::string stdout = math.stdout();
-  const std::string prompt = "Out[1]=";
+  if (math.exit_status() != 0)
+    throw mma::mathlink_exception(math.stderr()); 
+
+  const string stdout = math.stdout();
+  const string prompt = "Out[1]=";
   size_t pos = stdout.find(prompt) + prompt.size();
   while (stdout[pos] == ' ' && pos < stdout.size())
     pos++;
   size_t len = 0;
   while (pos+len < stdout.size() && isprint(stdout[pos+len]))
     len++;
+
+  if (len == 0)
+    throw mma::mathlink_exception("parsing Mathematica output failed"); 
   return stdout.substr(pos, len);
 }
 
@@ -38,10 +47,10 @@ std::string find_root_dir(const xon::object& obj)
 }
 
 
-int run_communicate(xon::server& server, MmaMathLink::mathlink& ml)
+int run_communicate(xon::server& server, mma::mathlink& ml)
 {
   using namespace std;
-  using namespace MmaMathLink;
+  using namespace mma;
   xon::obj_builder xb;
 
   packet *pkt = NULL;
@@ -90,7 +99,7 @@ int run_communicate(xon::server& server, MmaMathLink::mathlink& ml)
 
 int run_server(void)
 {
-  using namespace MmaMathLink;
+  using namespace mma;
   xon::server server;
   xon::obj_builder xb;
 
@@ -122,7 +131,7 @@ int run_server(void)
 
 int test_open_explicit(const char* mathematica_command, const char* mathlink_library)
 {
-  using namespace MmaMathLink;
+  using namespace mma;
   mathlink ml(mathematica_command, mathlink_library);
   return 0;
 }
@@ -137,7 +146,7 @@ int test_open_explicit(const char* mathematica_command, const char* mathlink_lib
 int test_mathlink(const char* mathematica_command)
 {
   using namespace std;
-  using namespace MmaMathLink;
+  using namespace mma;
   string root_dir = find_root_dir(mathematica_command);
   mathlink ml(root_dir);
   packet *pkt = NULL;

@@ -52,6 +52,15 @@ public:
   timeout_exception(const std::string& what) : exception(what) {};
 };
 
+//! Failed to launch subprocess
+class subprocess_exception : public exception
+{
+public:
+  subprocess_exception(const std::string& what) : exception(what) {};
+};
+
+
+
 
 
 

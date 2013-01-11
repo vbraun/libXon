@@ -14,7 +14,7 @@
 #define EXTERN_C_BEGIN  extern "C" {
 #define EXTERN_C_END    }
 
-namespace MmaMathLink {
+namespace mma {
 
 
 typedef MLENV (*MLInitialize_func)(char *p);
@@ -608,4 +608,4 @@ void packet_end::send_packet(MLINK ml) const
 
 
 
-} // end namespace MmaMathLink
+} // end namespace mma

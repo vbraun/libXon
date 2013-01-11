@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "xon/exceptions.hh"
 #include "subprocess.h"
 
 namespace xon {

@@ -136,11 +136,10 @@ int communicate(const std::string& command,
     close(errfd[0]);   close(errfd[1]);
     close(infd[0]);    close(infd[1]);
     execlp(command.c_str(), command.c_str(), NULL);
-    error_printf("Failed to execute %s: %s\n", command.c_str(), strerror(errno));
+    std::cerr << "Failed to execute \"" << command << "\": " << strerror(errno) << std::endl;
     exit(EXIT_FAILURE);
   } else if (pid < 0) {
-    error_printf("Failed to fork (out of memory?).\n");
-    return EXIT_FAILURE;
+    throw subprocess_exception("Failed to fork (out of memory?).\n");
   }
 
   close(infd[0]);

@@ -6,12 +6,19 @@
 #include "mathlink_interface.hh"
 
 
+int test_open_explicit(const char* mathematica_command, const char* mathlink_library)
+{
+  using namespace MmaMathLink;
+  mathlink ml(mathematica_command, mathlink_library);
+  return 0;
+}
 
-void test(void)
+
+int test_mathlink(const char* mathematica_root_directory)
 {
   using namespace std;
   using namespace MmaMathLink;
-  mathlink ml("/usr/local/Wolfram/Mathematica/9.0");
+  mathlink ml(mathematica_root_directory);
   packet *pkt = NULL;
 
   pkt = ml.receive();
@@ -43,6 +50,7 @@ void test(void)
   }
 
   delete pkt;
+  return 0;
 }
 
 /////////////////////////////////////////////////////////
@@ -52,22 +60,99 @@ void test(void)
 ////////////////////////////////////////////////////////
 
 
-void run_server(void)
+std::string find_root_dir(const xon::object& obj)
 {
-  using namespace std;
-  using namespace MmaMathLink;
-  xon::server server;
-  mathlink ml = mathlink("");
-  packet *pkt = NULL;
-  pkt = ml.receive();
-  
-  delete pkt;
+  xon::obj_reader xr = xon::obj_reader(obj);
+  if (xr.has_key("root_dir"))
+    return xr.get_string("root_dir");
+  std::string cmd = xr.get_string("command", "math");
+
+
+  return cmd;
 }
 
 
-int main(void)
+int run_communicate(xon::server& server, MmaMathLink::mathlink& ml)
 {
-  test();
-  // run_server();
+  using namespace std;
+  using namespace MmaMathLink;
+  xon::obj_builder xb;
+
+  packet *pkt = NULL;
+  while (true) { // eat everything up to the first input prompt
+    delete pkt;
+    pkt = ml.receive();
+    if (pkt->header() == packet::INPUT_NAME)
+      break;
+  }
+
+  while (true) {
+    xon::obj_reader xr = xon::obj_reader(server.receive());
+    
+    if (xr.get_bool("quit", false))
+      break;
+
+    string stdin = xr.get_string("stdin");
+    ml.send(packet_function("EnterTextPacket", 1));
+    ml.send(packet_string(stdin));
+    ml.send(packet_end());
+
+    string stdout;
+    string prompt;
+    while (true) {
+      delete pkt;
+      pkt = ml.receive();
+      cout << *pkt;
+      if (pkt->header() == packet::RETURN_TEXT)
+        stdout += pkt->to_string();
+      if (pkt->header() == packet::OUTPUT_NAME)
+        prompt += pkt->to_string();
+      else if (pkt->header() == packet::INPUT_NAME)
+        break;  // input prompt
+    }
+    
+    xb.add("stdout", stdout);
+    xb.add("stderr", "");
+    xb.add("prompt", prompt);
+    server.send(xb.get());
+  }
+  
+  delete pkt;
   return 0;
+}
+
+
+int run_server(void)
+{
+  using namespace MmaMathLink;
+  xon::server server;
+  xon::obj_builder xb;
+
+  std::string root_dir = find_root_dir(server.receive());
+  try {
+    mathlink ml = mathlink(root_dir);
+    xb.add("error", false);
+    xb.add("version", ml.interface());
+    xb.add("revision", ml.revision());
+    xb.add("library", ml.shared_library());
+    server.send(xb.get());
+    return run_communicate(server, ml);
+  } catch (mathlink_exception e) {
+    xb.add("error", true);
+    xb.add("message", e.what());
+    server.send(xb.get());
+    return 1;
+  }
+  return 2;
+}    
+
+
+int main(int argc, char *argv[])
+{
+  if (argc == 3)
+    return test_open_explicit(argv[1], argv[2]);
+  else if (argc == 2)
+    return test_mathlink(argv[1]);
+  else
+    return run_server();
 }

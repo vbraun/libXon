@@ -48,9 +48,7 @@ pid_t run_subprocess(const char *dst, const char *cookie)
   pid_t pid = fork();
   if (pid == 0) { // child
     char ** env = new_environment(cookie);
-    printf("env %s\n", *env);
 #if 0  //XON_DEBUG
-    // execle("valgrind", "valgrind", dst, NULL, env);
     execle("/usr/bin/libtool", "libtool", "--mode=execute", 
            "valgrind", "--leak-check=full", dst, NULL, env);
 #else

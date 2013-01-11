@@ -52,7 +52,6 @@ void parse_cookie(const char* cookie, int *port)
     return;
   }
   *port = atoi(str);
-  debug_printf("parse_cookie: %s %d\n", str, *port);
 }
 
 

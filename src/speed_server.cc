@@ -15,13 +15,13 @@ int main(void)
   xon::obj_builder builder;
 
   while (true) {
-    const xon::object obj = server.receive();
-    const xon::obj_reader xr(obj);
+    const xon::object object = server.receive();
+    const xon::obj_reader reader(object);
     
-    if (xr.get_bool("quit", false))
+    if (reader.get_bool("quit", false))
       break;
 
-    int64_t x = xr.get_int64("x");
+    int64_t x = reader.get_int64("x");
     int64_t result = compute(x);
     builder.add("result", result);
     

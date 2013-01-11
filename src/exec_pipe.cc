@@ -12,6 +12,7 @@ int main(void)
   using namespace std;
 
   xon::server server;
+  xon::obj_builder xb;
 
   while (true) {
     const xon::object input = server.receive();
@@ -28,7 +29,6 @@ int main(void)
     stringstream stderr;
     int rc = xon::communicate(command, args, stdin, stdout, stderr);
 
-    xon::obj_builder xb;
     xb.add("stdout", stdout.str());
     xb.add("stderr", stderr.str());
     xb.add("exit", rc);

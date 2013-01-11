@@ -42,7 +42,7 @@ public:
     //! Regular output prompt "Out[..]:="
     OUTPUT_NAME = 9, 
     //! Function call returning text
-    RETURNTEXTPKT = 4,
+    RETURN_TEXT = 4,
   };
   enum packet_type {     // the MLTKfoobar constants
     //! Not part of the MathLink API, used internally

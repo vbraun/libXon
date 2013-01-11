@@ -1,7 +1,10 @@
-#include <cassert>
-#include <sstream>
 #include <stdint.h>
 #include <dlfcn.h>
+#include <dirent.h>
+
+#include <cassert>
+#include <sstream>
+#include <vector>
 
 #include "mathlink_interface.hh"
 
@@ -111,7 +114,14 @@ static MathLinkInterface ML;
 ////////////////////////////////////////////////////////
 
 environment::environment() 
+  : ml_env(NULL)
 {
+}
+
+
+void environment::initialize() 
+{
+  assert(ML.Initialize != NULL);
   ml_env = ML.Initialize(NULL);
   if (ml_env == NULL)
     throw mathlink_exception("initialization failed");
@@ -120,7 +130,8 @@ environment::environment()
 
 environment::~environment() 
 {
-  ML.Deinitialize(ml_env);
+  if (ml_env != NULL)
+    ML.Deinitialize(ml_env);
 }
 
 
@@ -130,11 +141,19 @@ environment::~environment()
 ///
 ////////////////////////////////////////////////////////
 
-mathlink::mathlink(const std::string& mathematica_root_directory)
-  : root_dir(mathematica_root_directory)
+mathlink::mathlink(const std::string& root_dir)
 {
-  dlopen_mathlink();
-  open();
+  search_mathlink(root_dir);
+  env.initialize();
+  open(root_dir + "/Executables/math");
+}
+
+mathlink::mathlink(const std::string& mathematica_command, 
+		   const std::string& mathlink_shared_library)
+{
+  dlopen_mathlink(mathlink_shared_library);
+  env.initialize();
+  open(mathematica_command);
 }
 
 mathlink::~mathlink()
@@ -152,20 +171,17 @@ void mathlink::print_error()
     cerr << "Error is not error?!?" << endl;
 }
 
-void mathlink::open()
+void mathlink::open(const std::string& mathematica_command)
 {
-  const std::string command = root_dir + "/Executables/math";
-
   const char *nargv[] = {
     "-linkmode", 
     "launch", 
     "-linkname", 
-    command.c_str(), /*math_program+linkname[]+argv[]*/
+    mathematica_command.c_str(),
     NULL};
 
   int error;
   ml = ML.OpenArgv(env.ml_env, nargv, nargv+sizeof(nargv)/sizeof(*nargv)-1, &error);
-  std::cout << "error = " << error << std::endl;
   if (ml == NULL) {
     print_error();
     throw mathlink_exception("opening link failed");
@@ -214,62 +230,151 @@ long mathlink::revision() const
   return revision_version;
 }
 
+void mathlink::dlopen_mathlink_dependency(const std::string& shared_library) const
+{
+  using std::string;
+  void *hdle = dlopen(shared_library.c_str(), RTLD_NOW | RTLD_GLOBAL);
+  if (hdle == NULL) {
+    const char *err = dlerror();
+    string str = (err==NULL) ? 
+      string("opening ") + shared_library + string(" failed inexplicably") : 
+      string("opening ") + shared_library + string(" failed: ")+err;
+    std::cerr << str << std::endl;  // hope for the best
+  }
+}
+
 void* mathlink::library_handle = NULL;
 
+#define MATHLINK_DLOAD_SYMBOL(function)                                          \
+  ML.function = (ML ## function ## _func)dlsym(library_handle, "ML" #function);  \
+  if (ML.function == NULL) {                                                     \
+    const char *err = dlerror();                                                 \
+    string str = (err==NULL) ?                                                   \
+      string("loading symbol ML" #function " failed inexplicably") :             \
+      string("opening symbol ML" #function " failed: ")+err;                     \
+    throw mathlink_exception(str);                                               \
+  }
 
-void mathlink::dlopen_mathlink(const std::string shared_library) const
+void mathlink::dlopen_mathlink(const std::string& shared_library)
 {
+  if (library_handle != NULL)
+    return;
+
+#ifdef __APPLE__
+  dlopen_mathlink_dependency("libpthread.dylib");
+#else
+  dlopen_mathlink_dependency("librt.so");
+  dlopen_mathlink_dependency("libpthread.so.0");
+#endif
+
+  using std::string;
   library_handle = dlopen(shared_library.c_str(), RTLD_LAZY);
-  if (library_handle == NULL)
-    throw mathlink_exception("opening shared library failed");
+  if (library_handle == NULL) {
+    const char *err = dlerror();
+    string str = (err==NULL) ? 
+      string("opening the mathlink shared library failed inexplicably") : 
+      string("opening the mathlink shared library failed: ")+err;
+    throw mathlink_exception(str);
+  }
   
-  ML.Initialize    = (MLInitialize_func)dlsym(library_handle, "MLInitialize");
-  ML.Deinitialize  = (MLDeinitialize_func)dlsym(library_handle, "Deinitialize");
+  MATHLINK_DLOAD_SYMBOL(Initialize);
+  MATHLINK_DLOAD_SYMBOL(Deinitialize);
+    
+  MATHLINK_DLOAD_SYMBOL(OpenArgv);
+  MATHLINK_DLOAD_SYMBOL(Activate);
+  MATHLINK_DLOAD_SYMBOL(VersionNumber0); 
+  MATHLINK_DLOAD_SYMBOL(Close);
 
-  ML.OpenArgv      = (MLOpenArgv_func)dlsym(library_handle, "OpenArgv");
-  ML.Activate      = (MLActivate_func)dlsym(library_handle, "Activate");
-  ML.VersionNumber0 = (MLVersionNumber0_func)dlsym(library_handle, "VersionNumber0");
-  ML.Close         = (MLClose_func)dlsym(library_handle, "Close");
+  MATHLINK_DLOAD_SYMBOL(Error);
+  MATHLINK_DLOAD_SYMBOL(ClearError);
+  MATHLINK_DLOAD_SYMBOL(ErrorMessage);
 
-  ML.Error         = (MLError_func)dlsym(library_handle, "Error");
-  ML.ClearError    = (MLClearError_func)dlsym(library_handle, "ClearError");
-  ML.ErrorMessage  = (MLErrorMessage_func)dlsym(library_handle, "ErrorMessage");
-  
-  ML.GetType       = (MLGetType_func)dlsym(library_handle, "GetType");
-  ML.NextPacket    = (MLNextPacket_func)dlsym(library_handle, "NextPacket");
-  
-  ML.GetSymbol     = (MLGetSymbol_func)dlsym(library_handle, "GetSymbol");
-  ML.ReleaseSymbol = (MLReleaseSymbol_func)dlsym(library_handle, "ReleaseSymbol");
-  ML.PutSymbol     = (MLPutSymbol_func)dlsym(library_handle, "PutSymbol");
-  
-  ML.GetUTF8Symbol = (MLGetUTF8Symbol_func)dlsym(library_handle, "GetUTF8Symbol");
-  ML.ReleaseUTF8Symbol = (MLReleaseUTF8Symbol_func)dlsym(library_handle, "ReleaseUTF8Symbol");
-  ML.PutUTF8Symbol = (MLPutUTF8Symbol_func)dlsym(library_handle, "PutUTF8Symbol");
-  
-  ML.GetString     = (MLGetString_func)dlsym(library_handle, "GetString");
-  ML.ReleaseString = (MLReleaseString_func)dlsym(library_handle, "ReleaseString");
-  ML.PutString     = (MLPutString_func)dlsym(library_handle, "PutString");
-  
-  ML.GetUTF8String = (MLGetUTF8String_func)dlsym(library_handle, "GetUTF8String");
-  ML.ReleaseUTF8String = (MLReleaseUTF8String_func)dlsym(library_handle, "ReleaseUTF8String");
-  ML.PutUTF8String = (MLPutUTF8String_func)dlsym(library_handle, "PutUTF8String");
-  
-  ML.GetInteger32  = (MLGetInteger32_func)dlsym(library_handle, "GetInteger32");
-  ML.GetInteger64  = (MLGetInteger64_func)dlsym(library_handle, "GetInteger64");
-  
-  ML.GetReal32     = (MLGetReal32_func)dlsym(library_handle, "GetReal32");
-  ML.GetReal64     = (MLGetReal64_func)dlsym(library_handle, "GetReal64");
-  
-  ML.PutFunction   = (MLPutFunction_func)dlsym(library_handle, "PutFunction");
-  
-  ML.EndPacket     = (MLEndPacket_func)dlsym(library_handle, "EndPacket");
+  MATHLINK_DLOAD_SYMBOL(GetType);
+  MATHLINK_DLOAD_SYMBOL(NextPacket);
+
+  MATHLINK_DLOAD_SYMBOL(GetSymbol);
+  MATHLINK_DLOAD_SYMBOL(ReleaseSymbol);
+  MATHLINK_DLOAD_SYMBOL(PutSymbol);
+
+  MATHLINK_DLOAD_SYMBOL(GetUTF8Symbol);
+  MATHLINK_DLOAD_SYMBOL(ReleaseUTF8Symbol);
+  MATHLINK_DLOAD_SYMBOL(PutUTF8Symbol);
+
+  MATHLINK_DLOAD_SYMBOL(GetString);
+  MATHLINK_DLOAD_SYMBOL(ReleaseString);
+  MATHLINK_DLOAD_SYMBOL(PutString);
+
+  MATHLINK_DLOAD_SYMBOL(GetUTF8String);
+  MATHLINK_DLOAD_SYMBOL(ReleaseUTF8String);
+  MATHLINK_DLOAD_SYMBOL(PutUTF8String);
+
+  MATHLINK_DLOAD_SYMBOL(GetInteger32);
+  MATHLINK_DLOAD_SYMBOL(GetInteger64);
+
+  MATHLINK_DLOAD_SYMBOL(GetReal32);
+  MATHLINK_DLOAD_SYMBOL(GetReal64);
+
+  MATHLINK_DLOAD_SYMBOL(PutFunction);
+
+  MATHLINK_DLOAD_SYMBOL(EndPacket);
+
+  library_name = shared_library;
 }
 
 
-void mathlink::dlopen_mathlink() const
+void mathlink::search_mathlink(const std::string& root_dir)
 {
-  std::string dir = root_dir + "/SystemFiles/Links/MathLink/DeveloperKit";
-  dlopen_mathlink(dir + "/Linux-x86-64/CompilerAdditions/libML64i3.so");
+  if (library_handle != NULL)
+    return;
+
+  using namespace std;
+  string dir = root_dir + "/SystemFiles/Links/MathLink/DeveloperKit";
+  vector<string> arch = list_dir(dir, false, true);
+  for (vector<string>::const_iterator ai = arch.begin(); ai != arch.end(); ai++) {
+    string arch_dir = dir + "/" + *ai + "/CompilerAdditions/";
+    vector<string> lib = list_dir(arch_dir, true, false);
+    for (vector<string>::const_iterator li = lib.begin(); li != lib.end(); li++) {
+      if ( (li->find(".so") == string::npos) &&
+	   (li->find(".dylib") == string::npos) )
+	continue;
+      try {
+	dlopen_mathlink(arch_dir + *li);
+      } catch (mathlink_exception& e) {
+	cout << "Opening " << *li << " failed, error is: " << e.what() << endl;
+	continue;
+      }
+      cout << "Opening " << *li << " succeeded, found the Mathematica mathlink shared library." << endl;
+      return; // dlopen was successful
+    }
+  }
+  throw mathlink_exception("could not find mathlink shared library, try specifying it explicitly.");
+}
+
+  
+std::vector<std::string> 
+mathlink::list_dir(const std::string& dir, bool files, bool dirs) const
+{
+  DIR *dp = opendir(dir.c_str());
+  if (dp == NULL)
+    throw mathlink_exception(std::string("cannot open directory ") + dir);
+  
+  std::vector<std::string> filelist;
+  struct dirent *dirp;
+  while ((dirp = readdir(dp)) != NULL) {
+    std::string f = std::string(dirp->d_name);
+    if (f[0] == '.')
+      continue;
+    if ( (files && (dirp->d_type == DT_REG)) ||
+	 (dirs  && (dirp->d_type == DT_DIR)) )
+      filelist.push_back(f);
+  }
+  closedir(dp);
+  return filelist;
+}
+
+const std::string& mathlink::shared_library() const
+{
+  return library_name;
 }
 
 

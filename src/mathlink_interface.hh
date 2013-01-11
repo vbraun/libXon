@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
-
+#include <vector>
 
 /*! @file  */
 
@@ -150,6 +150,7 @@ private:
   friend class mathlink;
   MLENV ml_env;
   environment();
+  void initialize();
 public:
   virtual ~environment();
 };
@@ -163,14 +164,16 @@ private:
   MLINK ml;
   long interface_version, revision_version;
   //! The mathematica root directory, e.g. "/usr/local/Wolfram/Mathematica/9.0"
-  std::string root_dir;
   static void* library_handle;
-  void dlopen_mathlink() const;
-  void dlopen_mathlink(const std::string shared_library) const;
+  std::string library_name;
+  void search_mathlink(const std::string& root_dir);
+  void dlopen_mathlink(const std::string& shared_library);
+  void dlopen_mathlink_dependency(const std::string& shared_library) const;
+  std::vector<std::string> list_dir(const std::string& dir, bool files, bool directories) const;
 protected:
   void print_error();
   //! Open the MathLink interface
-  void open();
+  void open(const std::string& mathematica_command);
   void close();
 public:
   //! Start a MathLink session
@@ -180,9 +183,22 @@ public:
    *         $InstallationDirectory variable in Mathematica.
    */
   mathlink(const std::string& mathematica_root_directory);
+  //! Start a MathLink session by explicitly providing the shared library
+  /*  @param mathematica_command the command to run Mathematica text
+   *         mode, usually "math". Use an absolute path name if the
+   *         command is not in the system $PATH.
+   *  @param mathlink_shared_library the shared library for mathlink,
+   *         for example
+   *         "/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/libML64i3.so".
+   *         Must be a full path name unless it is in the system
+   *         library search path, which is not where Mathematica
+   *         installs it.
+   */
+  mathlink(const std::string& mathematica_command, const std::string& mathlink_shared_library);
   virtual ~mathlink();
   long interface() const;
   long revision() const;
+  const std::string& shared_library() const;
   void send(const packet& pkt);
   packet* receive();
 };

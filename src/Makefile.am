@@ -140,14 +140,7 @@ xon_server_mathlink_SOURCES = \
 xon_server_mathlink_LDADD = \
 	libxon-objectxx.la \
 	libxon-serverxx.la \
-	-ldl
-
-
-#	-lML64i3 -lrt -lpthread
-#	/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/libML64i3.so
+	-ldl \
+	-lpthread    # gdb gets unhappy if the dlopen() pulls in pthread
 
 xon_server_mathlink_CXXFLAGS = $(AM_CXXFLAGS)
-
-#xon_server_mathlink_LDFLAGS = \
-#	-L/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions \
-#	-Wl,-rpath -Wl,/usr/local/Wolfram/Mathematica/9.0/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions

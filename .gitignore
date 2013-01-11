@@ -3,7 +3,6 @@
 *Makefile.in
 *Makefile
 *.o
-config.*
 */.deps/
 */.libs/
 */*/.deps/
@@ -12,6 +11,9 @@ config.*
 *.lo
 *.so
 *.tar.gz
+config.log
+config.status
+src/config.h
 doc/html
 doc/latex
 libtool

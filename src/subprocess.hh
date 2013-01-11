@@ -3,9 +3,7 @@
 
 /** @file */ 
 
-#include <iostream>
 #include <string>
-#include <sstream>
 #include <vector>
 
 #include "subprocess.h"
@@ -13,17 +11,6 @@
 namespace xon {
 
 
-
-
-void read_write_all(int infd, const std::string& stdin, 
-                    int outfd, std::stringstream& stdout_stream, 
-                    int errfd, std::stringstream& stderr_stream);
-
-int communicate(const std::string& command, 
-                const std::vector<std::string> &args,
-                const std::string& stdin, 
-                std::stringstream& stdout_stream, 
-                std::stringstream& stderr_stream);
 
 
 

@@ -3,6 +3,8 @@
 #include <cerrno>
 #include <cstring>
 #include <cstdio>
+#include <iostream>
+#include <sstream>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -15,46 +17,7 @@
 
 namespace xon {
 
-
-
-subprocess::subprocess(const std::string& command)
-  : cmd(command)
-{
-}
-
-subprocess subprocess::add_arg(const std::string& cmdline_argument)
-{
-  args.push_back(cmdline_argument);
-  return *this;
-}
-
-void subprocess::operator << (const std::string& stdin)
-{
-}
-
-const std::string& subprocess::stdout() const
-{
-  return out;
-}
-
-const std::string& subprocess::stderr() const
-{
-  return err;
-}
-
-int subprocess::exit_status() const
-{
-  return status;
-}
-
-
-
-
-
-
-
-
-
+namespace { 
 
 //! Communicate with pipes
 void read_write_all(int infd, const std::string& stdin, 
@@ -197,8 +160,49 @@ int communicate(const std::string& command,
   return WEXITSTATUS(status);
 }
 
+} // end anonymous namespace
 
 
+//////////////////////////////////////////////////////
+///
+/// Implementation of class subprocess
+///
+//////////////////////////////////////////////////////
+
+
+subprocess::subprocess(const std::string& command)
+  : cmd(command)
+{
+}
+
+subprocess subprocess::add_arg(const std::string& cmdline_argument)
+{
+  args.push_back(cmdline_argument);
+  return *this;
+}
+
+void subprocess::operator << (const std::string& stdin)
+{
+  std::stringstream stdout_stream, stderr_stream;
+  status = communicate(cmd, args, stdin, stdout_stream, stderr_stream);
+  out = stdout_stream.str();
+  err = stderr_stream.str();
+}
+
+const std::string& subprocess::stdout() const
+{
+  return out;
+}
+
+const std::string& subprocess::stderr() const
+{
+  return err;
+}
+
+int subprocess::exit_status() const
+{
+  return status;
+}
 
 
 } // end namespace xon

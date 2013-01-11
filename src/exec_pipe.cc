@@ -22,16 +22,13 @@ int main(void)
       break;
 
     const string command = xr.get_string("command");
-    const string stdin = xr.get_string("stdin");
     vector<string> args; // todo
-
-    stringstream stdout;
-    stringstream stderr;
-    int rc = xon::communicate(command, args, stdin, stdout, stderr);
-
-    xb.add("stdout", stdout.str());
-    xb.add("stderr", stderr.str());
-    xb.add("exit", rc);
+    xon::subprocess cmd = xon::subprocess(command);
+    
+    cmd << xr.get_string("stdin");
+    xb.add("stdout", cmd.stdout());
+    xb.add("stderr", cmd.stderr());
+    xb.add("status", cmd.exit_status());
     const xon::object output(xb);
 
     server.send(output);

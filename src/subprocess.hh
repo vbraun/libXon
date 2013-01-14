@@ -15,6 +15,7 @@ namespace xon {
 
 
 class subprocess;
+class subprocess_pipe;
 class subprocess_factory;
 
 
@@ -47,19 +48,20 @@ public:
   //! Create new process
   subprocess exec() const;
   subprocess_pipe exec_pipe() const;
-}
+};
 
 
 
 
 class subprocess
 {
+private:
   friend class subprocess_factory;
-protected:
-  const int WAIT_EXIT=10;
+  static const int WAIT_EXIT=10;
   std::string cmd;
   pid_t pid;
   int status;
+protected:
   subprocess();
   //! Do the fork()
   virtual subprocess& exec(const subprocess_factory& factory);
@@ -69,22 +71,21 @@ public:
   virtual ~subprocess();
   bool is_running() const;
   int exit_status() const;
-  void wait(double timeout = 0);
+  void wait(double timeout = WAIT_EXIT);
   void kill();
 };
 
 
 class subprocess_pipe : public subprocess
 {
-  friend class subprocess_factory;
 private:
+  friend class subprocess_factory;
   int infd[2], outfd[2], errfd[2];
   std::string out, err;
+protected:
   subprocess_pipe();
   virtual subprocess_pipe& exec(const subprocess_factory& factory);
   virtual void child(const subprocess_factory& factory);
-protected:
-  virtual 
 public:
   virtual ~subprocess_pipe();
   void operator << (const std::string& stdin);

@@ -26,17 +26,29 @@ subprocess_factory::subprocess_factory(const std::string& command)
 subprocess_factory 
 subprocess_factory::add_arg(const std::string& cmdline_argument)
 {
-  arg.push_back(cmdline_argument);
+  args.push_back(cmdline_argument);
+  return *this;
 }
 
 subprocess_factory 
 subprocess_factory::add_env(const std::string& environment_variable, 
                            const std::string& value)
 {
+  delete_env(environment_variable);
+  env.push_back(environment_variable + "=" + value);
+  return *this;
 }
 
 bool subprocess_factory::delete_env(const std::string& environment_variable)
 {
+  using namespace std;
+  string key = environment_variable + "=";
+  for (vector<string>::iterator ei = env.begin(); ei != env.end(); ei++)
+    if (ei->compare(0, key.length(), key) == 0) {
+      env.erase(ei);
+      return true;
+    }
+  return false;
 }
 
 const std::string 
@@ -54,15 +66,28 @@ subprocess_factory::get_env() const
 const std::vector<std::string>& 
 subprocess_factory::get_args() const
 {
-  return arg;
+  return args;
 }
 
 char ** subprocess_factory::dup_env() const
 {
+  const int n = env.size();
+  char ** newenv = (char**)malloc((n + 1) * sizeof(char*));
+  for (int i = 0; i < n; i++)
+    newenv[i] = strdup(env[i].c_str());
+  newenv[n] = NULL;
+  return newenv;
 }
 
 char ** subprocess_factory::dup_argv() const
 {
+  const int n = args.size();
+  char ** argv = (char**)malloc((n + 2) * sizeof(char*));
+  argv[0] = strdup(cmd.c_str());
+  for (int i = 0; i < n; i++)
+    argv[i+1] = strdup(args[i].c_str());
+  argv[n+1] = NULL;
+  return argv;
 }
 
 subprocess subprocess_factory::exec() const
@@ -185,8 +210,7 @@ int communicate(const std::string& command,
   pipe(outfd);
   pipe(errfd);
 
-  fflush(STDOUT_FILENO);
-  fflush(STDERR_FILENO);
+  fflush(NULL);
   pid_t pid = fork();
   if (pid == 0) { // child
     close(STDIN_FILENO);
@@ -245,20 +269,20 @@ subprocess::~subprocess()
     kill();
 }
 
-void subprocess::exec(const subprocess_factory& factory)
+subprocess& subprocess::exec(const subprocess_factory& factory)
 {
   cmd = factory.get_command();
 
-  fflush(STDOUT_FILENO);
-  fflush(STDERR_FILENO);
+  fflush(NULL);
   pid = fork();
   if (pid == 0) { // child
-    child();
+    child(factory);
     std::cerr << "Failed to execute \"" << cmd << "\": " << strerror(errno) << std::endl;
     exit(EXIT_FAILURE);
   } else if (pid < 0) {
     throw subprocess_exception("Failed to fork (out of memory?).\n");
   }
+  return *this;
 }
 
 void subprocess::child(const subprocess_factory& factory)
@@ -277,17 +301,17 @@ int subprocess::exit_status() const
   return WEXITSTATUS(status);
 }
 
-void subprocess::kill() const
+void subprocess::kill()
 {
   c_api::kill_subprocess_status(pid, &status);
   pid = -1;
 }
 
-void subprocess::wait(double timeout = 0) const
+void subprocess::wait(double timeout)
 {
-  xon::c_api::xon_status rc = 
+  c_api::xon_status rc = 
     c_api::wait_for_subprocess_status(pid, timeout, &status);
-  if (rc == XON_OK)
+  if (rc == c_api::XON_OK)
     pid = -1;
 }
 
@@ -299,8 +323,7 @@ void subprocess::wait(double timeout = 0) const
 //////////////////////////////////////////////////////
 
 
-subprocess_pipe::subprocess_pipe(const subprocess_factory& factory)
-  : subprocess(factory)
+subprocess_pipe::subprocess_pipe()
 {
   pipe(infd);
   pipe(outfd);
@@ -315,13 +338,13 @@ subprocess_pipe::~subprocess_pipe()
   close(errfd[0]);
 }
 
-void subprocess_pipe::exec(const subprocess_factory& factory)
+subprocess_pipe& subprocess_pipe::exec(const subprocess_factory& factory)
 {
   subprocess::exec(factory);
-
   close(infd[0]);
   close(outfd[1]);
   close(errfd[1]);
+  return *this;
 }
 
 void subprocess_pipe::child(const subprocess_factory& factory)

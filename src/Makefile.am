@@ -18,7 +18,7 @@ bin_PROGRAMS = \
 	xon_server_exec_pipe \
 	xon_server_speed_test \
 	xon_server_mathlink \
-	xon_server_preload_fileio
+	xon_server_preload
 
 
 ##################################################################
@@ -134,6 +134,8 @@ xon_server_speed_test_CXXFLAGS = $(AM_CXXFLAGS)
 
 ##################################################################
 xon_server_preload_SOURCES = \
+	cookie.h cookie.cc \
+	subprocess.hh subprocess.cc \
 	preload_server.cc 
 
 xon_server_preload_CXXFLAGS = $(AM_CXXFLAGS)

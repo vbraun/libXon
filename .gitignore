@@ -24,9 +24,11 @@ test/test_client_cxx
 test/speed_client
 test/exec_pipe_client
 test/preload_victim
+test/preload_client
 src/xon_server_exec_pipe
 src/xon_server_speed_test
 src/xon_server_mathlink
+src/xon_server_preload
 build/
 python/*/*.cpp
 *.pyc

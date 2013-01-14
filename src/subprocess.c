@@ -43,18 +43,25 @@ char **new_environment(const char *cookie)
 }
 
 
-pid_t run_subprocess(const char *dst, const char *cookie)
+pid_t run_subprocess(const char *dst, const char**argv, const char *cookie)
 {
-  fflush(STDOUT_FILENO);
-  fflush(STDERR_FILENO);
+  fflush(NULL);
   pid_t pid = fork();
   if (pid == 0) { // child
     char ** env = new_environment(cookie);
+    char **dst_argv = (char**)argv;
+    if (dst_argv == NULL) {
+      dst_argv = (char **)malloc(2 * sizeof(char*));
+      dst_argv[0] = strdup(dst);
+      dst_argv[1] = NULL;
+    }
 #if 0  //XON_DEBUG
     execle("/usr/bin/libtool", "libtool", "--mode=execute", 
            "valgrind", "--leak-check=full", dst, NULL, env);
 #else
-    execle(dst, dst, NULL, env);
+    // execle(dst, dst, NULL, env);
+    environ = env;
+    execvp(dst, dst_argv);
 #endif
     error_printf("Failed to execute %s: %s\n", dst, strerror(errno));
     exit(EXIT_FAILURE);
@@ -74,6 +81,11 @@ xon_status wait_for_subprocess(const pid_t pid, double timeout)
 
 xon_status wait_for_subprocess_status(const pid_t pid, double timeout, int *status) 
 {
+  if (timeout < 0) {  // wait forever
+    waitpid(pid, status, 0);
+    return XON_OK;
+  }
+
   time_t start = time(NULL);
   while (true) {
     if (waitpid(pid, status, WNOHANG) == pid)

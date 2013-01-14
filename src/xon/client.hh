@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include <xon/client.h>
 #include <xon/object.hh>
@@ -24,12 +25,15 @@ private:
   c_api::xon_client ptr;
 public:
   client(const std::string& command);
+  client(const std::string& command, const std::string& arg1);
+  client(const std::string& command, const std::vector<std::string>& args);
   virtual ~client();
   void send(const object& obj) const;
   void wait(double timeout) const;
   void kill() const;
   object receive() const;
 };
+
 
 
 

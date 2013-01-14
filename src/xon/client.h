@@ -51,7 +51,7 @@ typedef xon_client_struct *xon_client;
  *  
  *  @param dst name of the server program
  */
-xon_client xon_client_new(const char *dst);
+xon_client xon_client_new(const char *dst, const char *argv[]);
 
 
 /*! @brief Destroy a client

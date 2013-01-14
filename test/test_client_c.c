@@ -28,7 +28,7 @@ xon_obj make_obj()
 
 int test(const char* command)
 {
-  xon_client client = xon_client_new("./test_server_c");
+  xon_client client = xon_client_new("./test_server_c", NULL);
   if (client == NULL) {
     printf("Client: Error starting client.\n");
     return 1;

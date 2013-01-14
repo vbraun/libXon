@@ -1,15 +1,26 @@
-#include <cassert>
-
+#include <iostream>
+#include "subprocess.hh"
 
 
 
 
 int main(int argc, char *argv[])
 {
-  if (argc == 3)
-    return test_open_explicit(argv[1], argv[2]);
-  else if (argc == 2)
-    return test_mathlink(argv[1]);
-  else
-    return run_server();
+  if (argc < 2) {
+    std::cerr << "Usage: preload_server <command> [arguments]" << std::endl;
+    return 1;
+  }
+
+  xon::subprocess_factory factory(argv[1]);
+  for (char **arg = argv + 2; *arg != NULL; arg++)
+    factory.add_arg(*arg);
+  
+#ifdef __APPLE__
+  factory.add_env("DYLD_INSERT_LIBRARIES", "libxon-preload.so");
+#else
+  factory.add_env("LD_PRELOAD", "libxon-preload.so");
+#endif
+
+  factory.exec().wait(-1);
+  return 0;
 }

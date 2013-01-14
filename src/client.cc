@@ -47,11 +47,36 @@ void fini()
 EXPORTED_SYMBOL_CPP
 client::client(const std::string& command)
 {
-  ptr = c_api::xon_client_new(command.c_str());
+  ptr = c_api::xon_client_new(command.c_str(), NULL);
   if (ptr == NULL)
     throw connect_exception("client: could not establish connection.");
 }
 
+EXPORTED_SYMBOL_CPP
+client::client(const std::string& command, const std::string& arg1)
+{
+  const char *argv[3];
+  argv[0] = command.c_str();
+  argv[1] = arg1.c_str();
+  argv[2] = NULL;
+  ptr = c_api::xon_client_new(command.c_str(), argv);
+  if (ptr == NULL)
+    throw connect_exception("client: could not establish connection.");
+}
+
+EXPORTED_SYMBOL_CPP
+client::client(const std::string& command, const std::vector<std::string>& args)
+{
+  char **argv = new char* [args.size() + 2];
+  argv[0] = (char*)command.c_str();
+  for (size_t i = 0; i < args.size(); i++)
+    argv[i+1] = (char*)args[i].c_str();
+  argv[args.size()+1] = NULL;
+  ptr = c_api::xon_client_new(command.c_str(), (const char**)argv);
+  delete[] argv;
+  if (ptr == NULL)
+    throw connect_exception("client: could not establish connection.");
+}
 
 EXPORTED_SYMBOL_CPP
 client::~client()

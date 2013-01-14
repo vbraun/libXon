@@ -43,7 +43,7 @@ void fini()
  *******************************************************/
 
 EXPORTED_SYMBOL_C
-xon_client xon_client_new(const char *dst)
+xon_client xon_client_new(const char *dst, const char *argv[])
 {
   xon_client client = (xon_client)
     malloc(sizeof(xon_client_struct));
@@ -63,7 +63,7 @@ xon_client xon_client_new(const char *dst)
   }
 
   if (good) {
-    client->server_pid = run_subprocess(dst, cookie);
+    client->server_pid = run_subprocess(dst, argv, cookie);
     good = (client->server_pid != 0);
   }
 

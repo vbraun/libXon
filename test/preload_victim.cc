@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <cstdlib>  // for getenv
 
 /* Imagine this is your average closed-source interpreter. You don't
    have access to the source code so you can't change it and link
@@ -43,6 +44,8 @@ void write_to_file(const std::string& filename, const std::string& data)
 
 int main(void)
 {
+  std::cout << "LD_PRELOAD = " << getenv("LD_PRELOAD") << std::endl;
+  
   // Using your closed-source interpreter to load a file ends up doing
   // this
   std::string input = read_from_file("/xon/input/key");

@@ -54,7 +54,6 @@ class subprocess
 {
 private:
   static const int WAIT_EXIT=10;
-  std::string cmd;
   pid_t pid;
   int status;
   //! Forbid copy constructor

@@ -276,13 +276,12 @@ subprocess::~subprocess()
 
 subprocess& subprocess::exec(const subprocess_factory& factory)
 {
-  cmd = factory.get_command();
-
   fflush(NULL);
   pid = fork();
   if (pid == 0) { // child
     child(factory);
-    std::cerr << "Failed to execute \"" << cmd << "\": " << strerror(errno) << std::endl;
+    std::cerr << "Failed to execute \"" << factory.get_command()
+              << "\": " << strerror(errno) << std::endl;
     exit(EXIT_FAILURE);
   } else if (pid < 0) {
     throw subprocess_exception("Failed to fork (out of memory?).\n");
@@ -292,7 +291,8 @@ subprocess& subprocess::exec(const subprocess_factory& factory)
 
 void subprocess::child(const subprocess_factory& factory)
 {
-  execlp(cmd.c_str(), cmd.c_str(), NULL);
+  environ = factory.dup_env();
+  execvp(factory.get_command().c_str(), factory.dup_argv());
 }
 
 bool subprocess::is_running() const

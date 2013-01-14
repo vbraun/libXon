@@ -90,16 +90,6 @@ char ** subprocess_factory::dup_argv() const
   return argv;
 }
 
-subprocess subprocess_factory::exec() const
-{
-  return subprocess().exec(*this);
-}
-
-subprocess_pipe subprocess_factory::exec_pipe() const
-{
-  return subprocess_pipe().exec(*this);
-}
-
 
 
 
@@ -257,12 +247,27 @@ int communicate(const std::string& command,
 
 
 subprocess::subprocess()
-  : pid(-1), status(-1)
 {
+  std::cout << "subprocess ctor" << std::endl;
+  init();
+}
+
+subprocess::subprocess(const subprocess_factory& factory)
+{
+  std::cout << "subprocess ctor factory" << std::endl;
+  init();
+  exec(factory);
+}
+
+void subprocess::init()
+{
+  pid = -1;
+  status = -1;
 }
 
 subprocess::~subprocess()
 {
+  std::cout << "subprocess dtor" << std::endl;
   if (is_running())
     wait(WAIT_EXIT);  
   if (is_running())
@@ -292,7 +297,7 @@ void subprocess::child(const subprocess_factory& factory)
 
 bool subprocess::is_running() const
 {
-  return pid < 0;
+  return pid >= 0;
 }
 
 int subprocess::exit_status() const
@@ -325,17 +330,30 @@ void subprocess::wait(double timeout)
 
 subprocess_pipe::subprocess_pipe()
 {
+  std::cout << "subprocess_pipe ctor" << std::endl;
+  init();
+}
+
+subprocess_pipe::subprocess_pipe(const subprocess_factory& factory)
+{
+  std::cout << "subprocess_pipe ctor factory" << std::endl;
+  init();
+  exec(factory);
+}
+
+void subprocess_pipe::init()
+{
   pipe(infd);
   pipe(outfd);
   pipe(errfd);
 }
 
-
 subprocess_pipe::~subprocess_pipe()
 {
-  close(infd[1]);
-  close(outfd[0]);
-  close(errfd[0]);
+  std::cout << "subprocess_pipe dtor" << std::endl;
+  if (infd[1]  >= 0) close(infd[1]);
+  if (outfd[1] >= 0) close(outfd[0]);
+  if (errfd[1] >= 0) close(errfd[0]);
 }
 
 subprocess_pipe& subprocess_pipe::exec(const subprocess_factory& factory)
@@ -369,6 +387,10 @@ void subprocess_pipe::operator << (const std::string& stdin)
                  errfd[0], stderr_stream);
   out = stdout_stream.str();
   err = stderr_stream.str();
+  close(infd[1]);   infd[1]  = -1;
+  close(outfd[0]);  outfd[1] = -1;
+  close(errfd[0]);  errfd[1] = -1;
+  wait(-1);
 }
 
 const std::string& subprocess_pipe::stdout() const

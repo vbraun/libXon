@@ -51,7 +51,8 @@ build_triplet = @build@
 host_triplet = @host@
 TESTS = xon_obj_rw$(EXEEXT) xon_objxx_rw$(EXEEXT) \
 	test_client_c$(EXEEXT) test_client_cxx$(EXEEXT) \
-	speed_client$(EXEEXT) exec_pipe_client$(EXEEXT)
+	speed_client$(EXEEXT) exec_pipe_client$(EXEEXT) \
+	preload_client$(EXEEXT)
 check_PROGRAMS = xon_obj_rw$(EXEEXT) xon_objxx_rw$(EXEEXT) \
 	test_client_c$(EXEEXT) test_client_cxx$(EXEEXT) \
 	test_server_c$(EXEEXT) test_server_cxx$(EXEEXT) \

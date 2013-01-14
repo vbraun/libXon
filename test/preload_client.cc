@@ -19,6 +19,9 @@ int main(void)
   xon::obj_reader xr(result);
   cout << "result:" << xr.get_string("result");
 
+  if (xr.get_string("result") != std::string("I got your message: This is easy!"))
+    return 1;
+
   client.wait(1);
   return 0;
 }

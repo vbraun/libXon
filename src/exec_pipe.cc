@@ -7,8 +7,30 @@
 
 
 
-int main(void)
+int test(std::string command, std::string input)
 {
+  using namespace std;
+  xon::subprocess_factory factory(command);
+  xon::subprocess_pipe cmd(factory);
+  cmd << input;
+  cmd.wait(1);
+  cout << "Running " << command << endl;
+  cout << "stdin:  " << input << endl;
+  cout << "stdout: " << cmd.stdout() << endl;
+  cout << "stderr: " << cmd.stderr() << endl;
+  cout << "status: " << cmd.exit_status() << endl;
+  return cmd.exit_status();
+}
+
+
+
+
+
+int main(int argc, const char *argv[])
+{
+  if (argc == 3)
+    return test(argv[1], argv[2]);
+  
   using namespace std;
 
   xon::server server;
@@ -24,7 +46,7 @@ int main(void)
     const string command = xr.get_string("command");
     vector<string> args; // todo
     xon::subprocess_factory factory(command);
-    xon::subprocess_pipe cmd = factory.exec_pipe();
+    xon::subprocess_pipe cmd(factory);
     
     cmd << xr.get_string("stdin");
     xb.add("stdout", cmd.stdout());

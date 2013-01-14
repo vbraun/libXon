@@ -19,7 +19,7 @@ std::string find_root_dir(const std::string& cmd)
 {
   using namespace std;
   xon::subprocess_factory factory(cmd);
-  xon::subprocess_pipe math = factory.exec_pipe();
+  xon::subprocess_pipe math(factory);
   math << "$InstallationDirectory\n";
   if (math.exit_status() != 0)
     throw mma::mathlink_exception(math.stderr()); 

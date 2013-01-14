@@ -45,9 +45,6 @@ public:
   char ** dup_env() const;
   //! Allocate argv suitable for calling execv, execvp, execvpe
   char ** dup_argv() const;
-  //! Create new process
-  subprocess exec() const;
-  subprocess_pipe exec_pipe() const;
 };
 
 
@@ -56,18 +53,22 @@ public:
 class subprocess
 {
 private:
-  friend class subprocess_factory;
   static const int WAIT_EXIT=10;
   std::string cmd;
   pid_t pid;
   int status;
+  //! Forbid copy constructor
+  subprocess(const subprocess&) {};
 protected:
   subprocess();
+  //! Initialize variables
+  virtual void init();
   //! Do the fork()
   virtual subprocess& exec(const subprocess_factory& factory);
   //! This is called after fork()
   virtual void child(const subprocess_factory& factory);
 public:
+  subprocess(const subprocess_factory& factory);
   virtual ~subprocess();
   bool is_running() const;
   int exit_status() const;
@@ -79,14 +80,17 @@ public:
 class subprocess_pipe : public subprocess
 {
 private:
-  friend class subprocess_factory;
   int infd[2], outfd[2], errfd[2];
   std::string out, err;
+  //! Forbid copy constructor
+  subprocess_pipe(const subprocess_pipe&) {};
 protected:
   subprocess_pipe();
+  virtual void init();
   virtual subprocess_pipe& exec(const subprocess_factory& factory);
   virtual void child(const subprocess_factory& factory);
 public:
+  subprocess_pipe(const subprocess_factory& factory);
   virtual ~subprocess_pipe();
   void operator << (const std::string& stdin);
   const std::string& stdout() const;

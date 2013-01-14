@@ -21,6 +21,6 @@ int main(int argc, char *argv[])
   factory.add_env("LD_PRELOAD", "libxon-preload.so");
 #endif
 
-  factory.exec().wait(-1);
+  xon::subprocess(factory).wait(-1);
   return 0;
 }

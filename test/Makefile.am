@@ -4,7 +4,8 @@ TESTS = \
 	xon_obj_rw xon_objxx_rw \
 	test_client_c test_client_cxx \
 	speed_client \
-	exec_pipe_client
+	exec_pipe_client \
+	preload_client
 
 check_PROGRAMS = \
 	xon_obj_rw xon_objxx_rw \

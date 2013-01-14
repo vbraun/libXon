@@ -21,7 +21,7 @@ NAMESPACE_XON_C_API_BEGIN
 static
 char **new_environment(const char *cookie) 
 {
-  const int size = 128;
+  const int size = 512;
   char* cookie_var = (char*)malloc(size);
   snprintf(cookie_var, size, "%s=%s", COOKIE_ENV_VAR, cookie);
 
@@ -45,6 +45,8 @@ char **new_environment(const char *cookie)
 
 pid_t run_subprocess(const char *dst, const char *cookie)
 {
+  fflush(STDOUT_FILENO);
+  fflush(STDERR_FILENO);
   pid_t pid = fork();
   if (pid == 0) { // child
     char ** env = new_environment(cookie);
@@ -66,13 +68,19 @@ pid_t run_subprocess(const char *dst, const char *cookie)
 
 xon_status wait_for_subprocess(const pid_t pid, double timeout) 
 {
+  return wait_for_subprocess_status(pid, timeout, NULL);
+}
+
+
+xon_status wait_for_subprocess_status(const pid_t pid, double timeout, int *status) 
+{
   time_t start = time(NULL);
   while (true) {
-    if (waitpid(pid, NULL, WNOHANG) == pid)
+    if (waitpid(pid, status, WNOHANG) == pid)
       return XON_OK;
     time_t now = time(NULL);
     double elapsed = difftime(now, start);
-    if (elapsed > timeout)
+    if (elapsed >= timeout)
       return XON_TIMEOUT;
     sched_yield();
   }
@@ -81,9 +89,16 @@ xon_status wait_for_subprocess(const pid_t pid, double timeout)
 
 void kill_subprocess(const pid_t pid)
 {
-  kill(pid, SIGKILL);
-  waitpid(pid, NULL, 0);
+  kill_subprocess_status(pid, NULL);
 }
+
+
+void kill_subprocess_status(const pid_t pid, int *status)
+{
+  kill(pid, SIGKILL);
+  waitpid(pid, status, 0);
+}
+
 
 
 

@@ -17,7 +17,8 @@ nobase_include_HEADERS = \
 bin_PROGRAMS = \
 	xon_server_exec_pipe \
 	xon_server_speed_test \
-	xon_server_mathlink
+	xon_server_mathlink \
+	xon_server_preload_fileio
 
 
 ##################################################################
@@ -129,6 +130,13 @@ xon_server_speed_test_LDADD = \
 	libxon-serverxx.la
 
 xon_server_speed_test_CXXFLAGS = $(AM_CXXFLAGS)
+
+
+##################################################################
+xon_server_preload_SOURCES = \
+	preload_server.cc 
+
+xon_server_preload_CXXFLAGS = $(AM_CXXFLAGS)
 
 
 ##################################################################

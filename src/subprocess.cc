@@ -7,7 +7,6 @@
 #include <sstream>
 
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <poll.h>
 
@@ -16,6 +15,68 @@
 
 
 namespace xon {
+
+
+
+subprocess_factory::subprocess_factory(const std::string& command)
+  : cmd(command)
+{
+}
+
+subprocess_factory 
+subprocess_factory::add_arg(const std::string& cmdline_argument)
+{
+  arg.push_back(cmdline_argument);
+}
+
+subprocess_factory 
+subprocess_factory::add_env(const std::string& environment_variable, 
+                           const std::string& value)
+{
+}
+
+bool subprocess_factory::delete_env(const std::string& environment_variable)
+{
+}
+
+const std::string 
+subprocess_factory::get_command() const
+{
+  return cmd;
+}
+
+const std::vector<std::string>& 
+subprocess_factory::get_env() const
+{
+  return env;
+}
+
+const std::vector<std::string>& 
+subprocess_factory::get_args() const
+{
+  return arg;
+}
+
+char ** subprocess_factory::dup_env() const
+{
+}
+
+char ** subprocess_factory::dup_argv() const
+{
+}
+
+subprocess subprocess_factory::exec() const
+{
+  return subprocess().exec(*this);
+}
+
+subprocess_pipe subprocess_factory::exec_pipe() const
+{
+  return subprocess_pipe().exec(*this);
+}
+
+
+
 
 namespace { 
 
@@ -124,6 +185,8 @@ int communicate(const std::string& command,
   pipe(outfd);
   pipe(errfd);
 
+  fflush(STDOUT_FILENO);
+  fflush(STDERR_FILENO);
   pid_t pid = fork();
   if (pid == 0) { // child
     close(STDIN_FILENO);
@@ -169,39 +232,132 @@ int communicate(const std::string& command,
 //////////////////////////////////////////////////////
 
 
-subprocess::subprocess(const std::string& command)
-  : cmd(command)
+subprocess::subprocess()
+  : pid(-1), status(-1)
 {
 }
 
-subprocess subprocess::add_arg(const std::string& cmdline_argument)
+subprocess::~subprocess()
 {
-  args.push_back(cmdline_argument);
-  return *this;
+  if (is_running())
+    wait(WAIT_EXIT);  
+  if (is_running())
+    kill();
 }
 
-void subprocess::operator << (const std::string& stdin)
+void subprocess::exec(const subprocess_factory& factory)
 {
-  std::stringstream stdout_stream, stderr_stream;
-  status = communicate(cmd, args, stdin, stdout_stream, stderr_stream);
-  out = stdout_stream.str();
-  err = stderr_stream.str();
+  cmd = factory.get_command();
+
+  fflush(STDOUT_FILENO);
+  fflush(STDERR_FILENO);
+  pid = fork();
+  if (pid == 0) { // child
+    child();
+    std::cerr << "Failed to execute \"" << cmd << "\": " << strerror(errno) << std::endl;
+    exit(EXIT_FAILURE);
+  } else if (pid < 0) {
+    throw subprocess_exception("Failed to fork (out of memory?).\n");
+  }
 }
 
-const std::string& subprocess::stdout() const
+void subprocess::child(const subprocess_factory& factory)
 {
-  return out;
+  execlp(cmd.c_str(), cmd.c_str(), NULL);
 }
 
-const std::string& subprocess::stderr() const
+bool subprocess::is_running() const
 {
-  return err;
+  return pid < 0;
 }
 
 int subprocess::exit_status() const
 {
-  return status;
+  assert(!is_running());
+  return WEXITSTATUS(status);
 }
+
+void subprocess::kill() const
+{
+  c_api::kill_subprocess_status(pid, &status);
+  pid = -1;
+}
+
+void subprocess::wait(double timeout = 0) const
+{
+  xon::c_api::xon_status rc = 
+    c_api::wait_for_subprocess_status(pid, timeout, &status);
+  if (rc == XON_OK)
+    pid = -1;
+}
+
+
+//////////////////////////////////////////////////////
+///
+/// Implementation of class subprocess
+///
+//////////////////////////////////////////////////////
+
+
+subprocess_pipe::subprocess_pipe(const subprocess_factory& factory)
+  : subprocess(factory)
+{
+  pipe(infd);
+  pipe(outfd);
+  pipe(errfd);
+}
+
+
+subprocess_pipe::~subprocess_pipe()
+{
+  close(infd[1]);
+  close(outfd[0]);
+  close(errfd[0]);
+}
+
+void subprocess_pipe::exec(const subprocess_factory& factory)
+{
+  subprocess::exec(factory);
+
+  close(infd[0]);
+  close(outfd[1]);
+  close(errfd[1]);
+}
+
+void subprocess_pipe::child(const subprocess_factory& factory)
+{
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  close(STDERR_FILENO);
+  dup2(infd[0], STDIN_FILENO);
+  dup2(outfd[1], STDOUT_FILENO);
+  dup2(errfd[1], STDERR_FILENO);
+  close(outfd[0]);   close(outfd[1]);
+  close(errfd[0]);   close(errfd[1]);
+  close(infd[0]);    close(infd[1]);
+  subprocess::child(factory);
+}
+
+void subprocess_pipe::operator << (const std::string& stdin)
+{
+  std::stringstream stdout_stream, stderr_stream;
+  read_write_all(infd[1], stdin,
+                 outfd[0], stdout_stream, 
+                 errfd[0], stderr_stream);
+  out = stdout_stream.str();
+  err = stderr_stream.str();
+}
+
+const std::string& subprocess_pipe::stdout() const
+{
+  return out;
+}
+
+const std::string& subprocess_pipe::stderr() const
+{
+  return err;
+}
+
 
 
 } // end namespace xon

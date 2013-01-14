@@ -53,7 +53,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = xon_server_exec_pipe$(EXEEXT) \
-	xon_server_speed_test$(EXEEXT) xon_server_mathlink$(EXEEXT)
+	xon_server_speed_test$(EXEEXT) xon_server_mathlink$(EXEEXT) \
+	xon_server_preload_fileio$(EXEEXT)
 subdir = src
 DIST_COMMON = $(nobase_include_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
@@ -168,6 +169,10 @@ xon_server_mathlink_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(xon_server_mathlink_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
+xon_server_preload_fileio_SOURCES = xon_server_preload_fileio.c
+xon_server_preload_fileio_OBJECTS =  \
+	xon_server_preload_fileio.$(OBJEXT)
+xon_server_preload_fileio_LDADD = $(LDADD)
 am_xon_server_speed_test_OBJECTS =  \
 	xon_server_speed_test-speed_server.$(OBJEXT)
 xon_server_speed_test_OBJECTS = $(am_xon_server_speed_test_OBJECTS)
@@ -203,12 +208,12 @@ SOURCES = $(libxon_client_la_SOURCES) $(libxon_clientxx_la_SOURCES) \
 	$(libxon_object_la_SOURCES) $(libxon_objectxx_la_SOURCES) \
 	$(libxon_server_la_SOURCES) $(libxon_serverxx_la_SOURCES) \
 	$(xon_server_exec_pipe_SOURCES) $(xon_server_mathlink_SOURCES) \
-	$(xon_server_speed_test_SOURCES)
+	xon_server_preload_fileio.c $(xon_server_speed_test_SOURCES)
 DIST_SOURCES = $(libxon_client_la_SOURCES) \
 	$(libxon_clientxx_la_SOURCES) $(libxon_object_la_SOURCES) \
 	$(libxon_objectxx_la_SOURCES) $(libxon_server_la_SOURCES) \
 	$(libxon_serverxx_la_SOURCES) $(xon_server_exec_pipe_SOURCES) \
-	$(xon_server_mathlink_SOURCES) \
+	$(xon_server_mathlink_SOURCES) xon_server_preload_fileio.c \
 	$(xon_server_speed_test_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
@@ -464,6 +469,12 @@ xon_server_speed_test_LDADD = \
 xon_server_speed_test_CXXFLAGS = $(AM_CXXFLAGS)
 
 ##################################################################
+xon_server_preload_SOURCES = \
+	preload_server.cc 
+
+xon_server_preload_CXXFLAGS = $(AM_CXXFLAGS)
+
+##################################################################
 xon_server_mathlink_SOURCES = \
 	macros.h align.h debug.h \
 	cookie.h cookie.cc \
@@ -626,6 +637,9 @@ xon_server_exec_pipe$(EXEEXT): $(xon_server_exec_pipe_OBJECTS) $(xon_server_exec
 xon_server_mathlink$(EXEEXT): $(xon_server_mathlink_OBJECTS) $(xon_server_mathlink_DEPENDENCIES) $(EXTRA_xon_server_mathlink_DEPENDENCIES) 
 	@rm -f xon_server_mathlink$(EXEEXT)
 	$(xon_server_mathlink_LINK) $(xon_server_mathlink_OBJECTS) $(xon_server_mathlink_LDADD) $(LIBS)
+xon_server_preload_fileio$(EXEEXT): $(xon_server_preload_fileio_OBJECTS) $(xon_server_preload_fileio_DEPENDENCIES) $(EXTRA_xon_server_preload_fileio_DEPENDENCIES) 
+	@rm -f xon_server_preload_fileio$(EXEEXT)
+	$(LINK) $(xon_server_preload_fileio_OBJECTS) $(xon_server_preload_fileio_LDADD) $(LIBS)
 xon_server_speed_test$(EXEEXT): $(xon_server_speed_test_OBJECTS) $(xon_server_speed_test_DEPENDENCIES) $(EXTRA_xon_server_speed_test_DEPENDENCIES) 
 	@rm -f xon_server_speed_test$(EXEEXT)
 	$(xon_server_speed_test_LINK) $(xon_server_speed_test_OBJECTS) $(xon_server_speed_test_LDADD) $(LIBS)
@@ -660,6 +674,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_mathlink-mathlink_interface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_mathlink-mathlink_server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_mathlink-subprocess.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_preload_fileio.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_speed_test-speed_server.Po@am__quote@
 
 .c.o:

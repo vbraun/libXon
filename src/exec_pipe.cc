@@ -23,7 +23,8 @@ int main(void)
 
     const string command = xr.get_string("command");
     vector<string> args; // todo
-    xon::subprocess cmd = xon::subprocess(command);
+    xon::subprocess_factory factory(command);
+    xon::subprocess_pipe cmd = factory.exec_pipe();
     
     cmd << xr.get_string("stdin");
     xb.add("stdout", cmd.stdout());

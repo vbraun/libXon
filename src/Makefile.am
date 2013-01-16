@@ -3,7 +3,8 @@ AM_CFLAGS = -Wall
 lib_LTLIBRARIES = \
 	libxon-object.la libxon-objectxx.la \
 	libxon-server.la libxon-serverxx.la \
-	libxon-client.la libxon-clientxx.la
+	libxon-client.la libxon-clientxx.la \
+	libxon-preload.la
 
 nobase_include_HEADERS = \
 	xon/support.h \
@@ -12,6 +13,7 @@ nobase_include_HEADERS = \
 	xon/object.h xon/object.hh \
 	xon/client.h xon/client.hh \
 	xon/server.h xon/server.hh \
+	xon/preload.hh \
 	xon/exceptions.hh
 
 bin_PROGRAMS = \
@@ -139,6 +141,21 @@ xon_server_preload_SOURCES = \
 	preload_server.cc 
 
 xon_server_preload_CXXFLAGS = $(AM_CXXFLAGS)
+
+
+##################################################################
+libxon_preload_la_SOURCES = \
+	xon/constants.h xon/object.h xon/object.hh xon/server.h xon/server.hh \
+	preload.cc preload.hh
+
+libxon_preload_la_LIBADD = \
+	libxon-objectxx.la \
+	libxon-serverxx.la \
+	-ldl
+
+libxon_preload_la_CXXFLAGS = \
+	-DBUILDING_XON_LIBRARY_CPP \
+	-DCONFIG_H $(CFLAG_VISIBILITY)
 
 
 ##################################################################

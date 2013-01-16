@@ -57,7 +57,8 @@ check_PROGRAMS = xon_obj_rw$(EXEEXT) xon_objxx_rw$(EXEEXT) \
 	test_client_c$(EXEEXT) test_client_cxx$(EXEEXT) \
 	test_server_c$(EXEEXT) test_server_cxx$(EXEEXT) \
 	speed_client$(EXEEXT) exec_pipe_client$(EXEEXT) \
-	preload_victim$(EXEEXT) preload_client$(EXEEXT)
+	buffering$(EXEEXT) preload_victim$(EXEEXT) \
+	preload_client$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/depcomp
@@ -72,6 +73,9 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/src/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+am_buffering_OBJECTS = buffering.$(OBJEXT)
+buffering_OBJECTS = $(am_buffering_OBJECTS)
+buffering_LDADD = $(LDADD)
 am_exec_pipe_client_OBJECTS = exec_pipe.$(OBJEXT)
 exec_pipe_client_OBJECTS = $(am_exec_pipe_client_OBJECTS)
 exec_pipe_client_DEPENDENCIES = @top_builddir@/src/libxon-objectxx.la \
@@ -131,16 +135,18 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(exec_pipe_client_SOURCES) $(preload_client_SOURCES) \
-	$(preload_victim_SOURCES) $(speed_client_SOURCES) \
-	$(test_client_c_SOURCES) $(test_client_cxx_SOURCES) \
-	$(test_server_c_SOURCES) $(test_server_cxx_SOURCES) \
-	$(xon_obj_rw_SOURCES) $(xon_objxx_rw_SOURCES)
-DIST_SOURCES = $(exec_pipe_client_SOURCES) $(preload_client_SOURCES) \
-	$(preload_victim_SOURCES) $(speed_client_SOURCES) \
-	$(test_client_c_SOURCES) $(test_client_cxx_SOURCES) \
-	$(test_server_c_SOURCES) $(test_server_cxx_SOURCES) \
-	$(xon_obj_rw_SOURCES) $(xon_objxx_rw_SOURCES)
+SOURCES = $(buffering_SOURCES) $(exec_pipe_client_SOURCES) \
+	$(preload_client_SOURCES) $(preload_victim_SOURCES) \
+	$(speed_client_SOURCES) $(test_client_c_SOURCES) \
+	$(test_client_cxx_SOURCES) $(test_server_c_SOURCES) \
+	$(test_server_cxx_SOURCES) $(xon_obj_rw_SOURCES) \
+	$(xon_objxx_rw_SOURCES)
+DIST_SOURCES = $(buffering_SOURCES) $(exec_pipe_client_SOURCES) \
+	$(preload_client_SOURCES) $(preload_victim_SOURCES) \
+	$(speed_client_SOURCES) $(test_client_c_SOURCES) \
+	$(test_client_cxx_SOURCES) $(test_server_c_SOURCES) \
+	$(test_server_cxx_SOURCES) $(xon_obj_rw_SOURCES) \
+	$(xon_objxx_rw_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -314,6 +320,7 @@ preload_client_LDADD = \
 	@top_builddir@/src/libxon-objectxx.la \
 	@top_builddir@/src/libxon-clientxx.la
 
+buffering_SOURCES = buffering.cc
 AM_CFLAGS = -Wall -g -O0
 AM_CXXFLAGS = -Wall -g -O0
 all: all-am
@@ -359,6 +366,9 @@ clean-checkPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+buffering$(EXEEXT): $(buffering_OBJECTS) $(buffering_DEPENDENCIES) $(EXTRA_buffering_DEPENDENCIES) 
+	@rm -f buffering$(EXEEXT)
+	$(CXXLINK) $(buffering_OBJECTS) $(buffering_LDADD) $(LIBS)
 exec_pipe_client$(EXEEXT): $(exec_pipe_client_OBJECTS) $(exec_pipe_client_DEPENDENCIES) $(EXTRA_exec_pipe_client_DEPENDENCIES) 
 	@rm -f exec_pipe_client$(EXEEXT)
 	$(CXXLINK) $(exec_pipe_client_OBJECTS) $(exec_pipe_client_LDADD) $(LIBS)
@@ -396,6 +406,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buffering.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/exec_pipe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/preload_client.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/preload_victim.Po@am__quote@

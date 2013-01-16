@@ -14922,6 +14922,7 @@ _ACEOF
 
 
 
+# AM_EXTRA_RECURSIVE_TARGETS([doc])
 am__api_version='1.12'
 
 # Find a good install program.  We prefer a C program (faster),

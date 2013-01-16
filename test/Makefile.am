@@ -12,6 +12,7 @@ check_PROGRAMS = \
 	test_client_c test_client_cxx test_server_c test_server_cxx \
 	speed_client \
 	exec_pipe_client \
+	buffering \
 	preload_victim preload_client
 
 xon_obj_rw_SOURCES = xon_obj_rw.c
@@ -56,6 +57,8 @@ preload_client_SOURCES = preload_client.cc
 preload_client_LDADD = \
 	@top_builddir@/src/libxon-objectxx.la \
 	@top_builddir@/src/libxon-clientxx.la
+
+buffering_SOURCES = buffering.cc
 
 
 AM_CFLAGS = -Wall -g -O0

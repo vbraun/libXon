@@ -52,13 +52,13 @@ host_triplet = @host@
 TESTS = xon_obj_rw$(EXEEXT) xon_objxx_rw$(EXEEXT) \
 	test_client_c$(EXEEXT) test_client_cxx$(EXEEXT) \
 	speed_client$(EXEEXT) exec_pipe_client$(EXEEXT) \
-	preload_client$(EXEEXT)
+	communicate_pipe_client$(EXEEXT)
 check_PROGRAMS = xon_obj_rw$(EXEEXT) xon_objxx_rw$(EXEEXT) \
 	test_client_c$(EXEEXT) test_client_cxx$(EXEEXT) \
 	test_server_c$(EXEEXT) test_server_cxx$(EXEEXT) \
 	speed_client$(EXEEXT) exec_pipe_client$(EXEEXT) \
-	buffering$(EXEEXT) preload_victim$(EXEEXT) \
-	preload_client$(EXEEXT)
+	buffering$(EXEEXT) communicate_pipe_victim$(EXEEXT) \
+	communicate_pipe_client$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/depcomp
@@ -76,17 +76,22 @@ CONFIG_CLEAN_VPATH_FILES =
 am_buffering_OBJECTS = buffering.$(OBJEXT)
 buffering_OBJECTS = $(am_buffering_OBJECTS)
 buffering_LDADD = $(LDADD)
+am_communicate_pipe_client_OBJECTS =  \
+	communicate_pipe_client.$(OBJEXT)
+communicate_pipe_client_OBJECTS =  \
+	$(am_communicate_pipe_client_OBJECTS)
+communicate_pipe_client_DEPENDENCIES =  \
+	@top_builddir@/src/libxon-objectxx.la \
+	@top_builddir@/src/libxon-clientxx.la
+am_communicate_pipe_victim_OBJECTS =  \
+	communicate_pipe_victim.$(OBJEXT)
+communicate_pipe_victim_OBJECTS =  \
+	$(am_communicate_pipe_victim_OBJECTS)
+communicate_pipe_victim_LDADD = $(LDADD)
 am_exec_pipe_client_OBJECTS = exec_pipe.$(OBJEXT)
 exec_pipe_client_OBJECTS = $(am_exec_pipe_client_OBJECTS)
 exec_pipe_client_DEPENDENCIES = @top_builddir@/src/libxon-objectxx.la \
 	@top_builddir@/src/libxon-clientxx.la
-am_preload_client_OBJECTS = preload_client.$(OBJEXT)
-preload_client_OBJECTS = $(am_preload_client_OBJECTS)
-preload_client_DEPENDENCIES = @top_builddir@/src/libxon-objectxx.la \
-	@top_builddir@/src/libxon-clientxx.la
-am_preload_victim_OBJECTS = preload_victim.$(OBJEXT)
-preload_victim_OBJECTS = $(am_preload_victim_OBJECTS)
-preload_victim_LDADD = $(LDADD)
 am_speed_client_OBJECTS = speed.$(OBJEXT)
 speed_client_OBJECTS = $(am_speed_client_OBJECTS)
 speed_client_DEPENDENCIES = @top_builddir@/src/libxon-objectxx.la \
@@ -135,14 +140,14 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(buffering_SOURCES) $(exec_pipe_client_SOURCES) \
-	$(preload_client_SOURCES) $(preload_victim_SOURCES) \
+SOURCES = $(buffering_SOURCES) $(communicate_pipe_client_SOURCES) \
+	$(communicate_pipe_victim_SOURCES) $(exec_pipe_client_SOURCES) \
 	$(speed_client_SOURCES) $(test_client_c_SOURCES) \
 	$(test_client_cxx_SOURCES) $(test_server_c_SOURCES) \
 	$(test_server_cxx_SOURCES) $(xon_obj_rw_SOURCES) \
 	$(xon_objxx_rw_SOURCES)
-DIST_SOURCES = $(buffering_SOURCES) $(exec_pipe_client_SOURCES) \
-	$(preload_client_SOURCES) $(preload_victim_SOURCES) \
+DIST_SOURCES = $(buffering_SOURCES) $(communicate_pipe_client_SOURCES) \
+	$(communicate_pipe_victim_SOURCES) $(exec_pipe_client_SOURCES) \
 	$(speed_client_SOURCES) $(test_client_c_SOURCES) \
 	$(test_client_cxx_SOURCES) $(test_server_c_SOURCES) \
 	$(test_server_cxx_SOURCES) $(xon_obj_rw_SOURCES) \
@@ -314,9 +319,9 @@ speed_client_LDADD = \
 	@top_builddir@/src/libxon-objectxx.la \
 	@top_builddir@/src/libxon-clientxx.la
 
-preload_victim_SOURCES = preload_victim.cc
-preload_client_SOURCES = preload_client.cc
-preload_client_LDADD = \
+communicate_pipe_victim_SOURCES = communicate_pipe_victim.cc
+communicate_pipe_client_SOURCES = communicate_pipe_client.cc
+communicate_pipe_client_LDADD = \
 	@top_builddir@/src/libxon-objectxx.la \
 	@top_builddir@/src/libxon-clientxx.la
 
@@ -369,15 +374,15 @@ clean-checkPROGRAMS:
 buffering$(EXEEXT): $(buffering_OBJECTS) $(buffering_DEPENDENCIES) $(EXTRA_buffering_DEPENDENCIES) 
 	@rm -f buffering$(EXEEXT)
 	$(CXXLINK) $(buffering_OBJECTS) $(buffering_LDADD) $(LIBS)
+communicate_pipe_client$(EXEEXT): $(communicate_pipe_client_OBJECTS) $(communicate_pipe_client_DEPENDENCIES) $(EXTRA_communicate_pipe_client_DEPENDENCIES) 
+	@rm -f communicate_pipe_client$(EXEEXT)
+	$(CXXLINK) $(communicate_pipe_client_OBJECTS) $(communicate_pipe_client_LDADD) $(LIBS)
+communicate_pipe_victim$(EXEEXT): $(communicate_pipe_victim_OBJECTS) $(communicate_pipe_victim_DEPENDENCIES) $(EXTRA_communicate_pipe_victim_DEPENDENCIES) 
+	@rm -f communicate_pipe_victim$(EXEEXT)
+	$(CXXLINK) $(communicate_pipe_victim_OBJECTS) $(communicate_pipe_victim_LDADD) $(LIBS)
 exec_pipe_client$(EXEEXT): $(exec_pipe_client_OBJECTS) $(exec_pipe_client_DEPENDENCIES) $(EXTRA_exec_pipe_client_DEPENDENCIES) 
 	@rm -f exec_pipe_client$(EXEEXT)
 	$(CXXLINK) $(exec_pipe_client_OBJECTS) $(exec_pipe_client_LDADD) $(LIBS)
-preload_client$(EXEEXT): $(preload_client_OBJECTS) $(preload_client_DEPENDENCIES) $(EXTRA_preload_client_DEPENDENCIES) 
-	@rm -f preload_client$(EXEEXT)
-	$(CXXLINK) $(preload_client_OBJECTS) $(preload_client_LDADD) $(LIBS)
-preload_victim$(EXEEXT): $(preload_victim_OBJECTS) $(preload_victim_DEPENDENCIES) $(EXTRA_preload_victim_DEPENDENCIES) 
-	@rm -f preload_victim$(EXEEXT)
-	$(CXXLINK) $(preload_victim_OBJECTS) $(preload_victim_LDADD) $(LIBS)
 speed_client$(EXEEXT): $(speed_client_OBJECTS) $(speed_client_DEPENDENCIES) $(EXTRA_speed_client_DEPENDENCIES) 
 	@rm -f speed_client$(EXEEXT)
 	$(CXXLINK) $(speed_client_OBJECTS) $(speed_client_LDADD) $(LIBS)
@@ -407,9 +412,9 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buffering.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/communicate_pipe_client.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/communicate_pipe_victim.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/exec_pipe.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/preload_client.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/preload_victim.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/speed.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_client_c.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_client_cxx.Po@am__quote@

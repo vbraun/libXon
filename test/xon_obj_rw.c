@@ -17,7 +17,7 @@ int main(void) {
   xon_obj_builder_add_int32 (xb, "int",   123);
   xon_obj_builder_add_int64 (xb, "large", (int64_t)(1) << 40);
   // Build the object and reset the builder
-  void* obj = xon_obj_builder_get(xb);
+  xon_obj obj = xon_obj_builder_get(xb);
   printf("\nFirst object\n");
   xon_obj_print(obj);
   xon_obj_hexdump(obj);

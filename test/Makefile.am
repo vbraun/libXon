@@ -5,7 +5,7 @@ TESTS = \
 	test_client_c test_client_cxx \
 	speed_client \
 	exec_pipe_client \
-	preload_client
+	communicate_pipe_client
 
 check_PROGRAMS = \
 	xon_obj_rw xon_objxx_rw \
@@ -13,7 +13,7 @@ check_PROGRAMS = \
 	speed_client \
 	exec_pipe_client \
 	buffering \
-	preload_victim preload_client
+	communicate_pipe_victim communicate_pipe_client
 
 xon_obj_rw_SOURCES = xon_obj_rw.c
 xon_obj_rw_LDADD = @top_builddir@/src/libxon-object.la
@@ -51,10 +51,10 @@ speed_client_LDADD = \
 	@top_builddir@/src/libxon-objectxx.la \
 	@top_builddir@/src/libxon-clientxx.la
 
-preload_victim_SOURCES = preload_victim.cc
+communicate_pipe_victim_SOURCES = communicate_pipe_victim.cc
 
-preload_client_SOURCES = preload_client.cc
-preload_client_LDADD = \
+communicate_pipe_client_SOURCES = communicate_pipe_client.cc
+communicate_pipe_client_LDADD = \
 	@top_builddir@/src/libxon-objectxx.la \
 	@top_builddir@/src/libxon-clientxx.la
 

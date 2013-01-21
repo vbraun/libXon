@@ -9,9 +9,9 @@ int main(void)
 {
   xon::obj_builder xb;
   std::vector<std::string> args;
-  args.push_back("../src/.libs/libxon-preload.so");
-  args.push_back("./preload_victim");
-  xon::client client("../src/xon_server_preload", args);
+  args.push_back("../src/.libs/libxon-stdbuf-preload.so");
+  args.push_back("./communicate_pipe_victim");
+  xon::client client("../src/xon_server_communicate_pipe", args);
 
   xb.add("key", "This is easy!");
   const xon::object input = xb.get();

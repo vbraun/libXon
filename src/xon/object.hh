@@ -15,7 +15,14 @@
 #include <xon/object.h>
 
 
+//! The libXon namespace
+/*  Everything is in this namespace. The C API is in the xon::c_api
+ *  namespace
+ */
 namespace xon {
+
+//! The namespace for the C API functions
+namespace c_api {}
 
 class builder;
 class reader;

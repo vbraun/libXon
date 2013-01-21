@@ -14,6 +14,7 @@ config.status
 src/config.h
 doc/html
 doc/latex
+doc/xml
 libtool
 test/xon_obj_rw
 test/xon_objxx_rw
@@ -23,8 +24,8 @@ test/test_client_c
 test/test_client_cxx
 test/speed_client
 test/exec_pipe_client
-test/preload_victim
-test/preload_client
+test/communicate_pipe_victim
+test/communicate_pipe_client
 test/buffering
 src/xon_server_exec_pipe
 src/xon_server_speed_test

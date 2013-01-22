@@ -18,9 +18,9 @@ nobase_include_HEADERS = \
 
 bin_PROGRAMS = \
 	xon_server_exec_pipe \
+	xon_server_communicate_pipe \
 	xon_server_speed_test \
-	xon_server_mathlink \
-	xon_server_preload
+	xon_server_mathlink
 
 
 ##################################################################
@@ -125,6 +125,19 @@ xon_server_exec_pipe_CXXFLAGS = $(AM_CXXFLAGS)
 
 
 ##################################################################
+xon_server_communicate_pipe_SOURCES = \
+	cookie.h cookie.cc \
+	subprocess.hh subprocess.cc \
+	communicate_pipe.cc
+
+xon_server_communicate_pipe_LDADD = \
+	libxon-objectxx.la \
+	libxon-serverxx.la
+
+xon_server_communicate_pipe_CXXFLAGS = $(AM_CXXFLAGS)
+
+
+##################################################################
 xon_server_speed_test_SOURCES = speed_server.cc
 
 xon_server_speed_test_LDADD = \
@@ -132,15 +145,6 @@ xon_server_speed_test_LDADD = \
 	libxon-serverxx.la
 
 xon_server_speed_test_CXXFLAGS = $(AM_CXXFLAGS)
-
-
-##################################################################
-xon_server_preload_SOURCES = \
-	cookie.h cookie.cc \
-	subprocess.hh subprocess.cc \
-	preload_server.cc 
-
-xon_server_preload_CXXFLAGS = $(AM_CXXFLAGS)
 
 
 ##################################################################

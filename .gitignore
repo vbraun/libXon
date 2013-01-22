@@ -27,10 +27,10 @@ test/exec_pipe_client
 test/communicate_pipe_victim
 test/communicate_pipe_client
 test/buffering
-src/xon_server_exec_pipe
 src/xon_server_speed_test
+src/xon_server_exec_pipe
+src/xon_server_communicate_pipe
 src/xon_server_mathlink
-src/xon_server_preload
 build/
 python/*/*.cpp
 *.pyc

@@ -53,8 +53,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = xon_server_exec_pipe$(EXEEXT) \
-	xon_server_speed_test$(EXEEXT) xon_server_mathlink$(EXEEXT) \
-	xon_server_preload$(EXEEXT)
+	xon_server_communicate_pipe$(EXEEXT) \
+	xon_server_speed_test$(EXEEXT) xon_server_mathlink$(EXEEXT)
 subdir = src
 DIST_COMMON = $(nobase_include_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
@@ -156,6 +156,18 @@ libxon_stdbuf_preload_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(libxon_stdbuf_preload_la_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 PROGRAMS = $(bin_PROGRAMS)
+am_xon_server_communicate_pipe_OBJECTS =  \
+	xon_server_communicate_pipe-cookie.$(OBJEXT) \
+	xon_server_communicate_pipe-subprocess.$(OBJEXT) \
+	xon_server_communicate_pipe-communicate_pipe.$(OBJEXT)
+xon_server_communicate_pipe_OBJECTS =  \
+	$(am_xon_server_communicate_pipe_OBJECTS)
+xon_server_communicate_pipe_DEPENDENCIES = libxon-objectxx.la \
+	libxon-serverxx.la
+xon_server_communicate_pipe_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(xon_server_communicate_pipe_CXXFLAGS) $(CXXFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_xon_server_exec_pipe_OBJECTS =  \
 	xon_server_exec_pipe-subprocess.$(OBJEXT) \
 	xon_server_exec_pipe-cookie.$(OBJEXT) \
@@ -177,15 +189,6 @@ xon_server_mathlink_DEPENDENCIES = libxon-objectxx.la \
 xon_server_mathlink_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(xon_server_mathlink_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
-am_xon_server_preload_OBJECTS = xon_server_preload-cookie.$(OBJEXT) \
-	xon_server_preload-subprocess.$(OBJEXT) \
-	xon_server_preload-preload_server.$(OBJEXT)
-xon_server_preload_OBJECTS = $(am_xon_server_preload_OBJECTS)
-xon_server_preload_LDADD = $(LDADD)
-xon_server_preload_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(xon_server_preload_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 am_xon_server_speed_test_OBJECTS =  \
 	xon_server_speed_test-speed_server.$(OBJEXT)
@@ -222,15 +225,17 @@ SOURCES = $(libxon_client_la_SOURCES) $(libxon_clientxx_la_SOURCES) \
 	$(libxon_object_la_SOURCES) $(libxon_objectxx_la_SOURCES) \
 	$(libxon_server_la_SOURCES) $(libxon_serverxx_la_SOURCES) \
 	$(libxon_stdbuf_preload_la_SOURCES) \
+	$(xon_server_communicate_pipe_SOURCES) \
 	$(xon_server_exec_pipe_SOURCES) $(xon_server_mathlink_SOURCES) \
-	$(xon_server_preload_SOURCES) $(xon_server_speed_test_SOURCES)
+	$(xon_server_speed_test_SOURCES)
 DIST_SOURCES = $(libxon_client_la_SOURCES) \
 	$(libxon_clientxx_la_SOURCES) $(libxon_object_la_SOURCES) \
 	$(libxon_objectxx_la_SOURCES) $(libxon_server_la_SOURCES) \
 	$(libxon_serverxx_la_SOURCES) \
 	$(libxon_stdbuf_preload_la_SOURCES) \
+	$(xon_server_communicate_pipe_SOURCES) \
 	$(xon_server_exec_pipe_SOURCES) $(xon_server_mathlink_SOURCES) \
-	$(xon_server_preload_SOURCES) $(xon_server_speed_test_SOURCES)
+	$(xon_server_speed_test_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -479,20 +484,24 @@ xon_server_exec_pipe_LDADD = \
 xon_server_exec_pipe_CXXFLAGS = $(AM_CXXFLAGS)
 
 ##################################################################
+xon_server_communicate_pipe_SOURCES = \
+	cookie.h cookie.cc \
+	subprocess.hh subprocess.cc \
+	communicate_pipe.cc
+
+xon_server_communicate_pipe_LDADD = \
+	libxon-objectxx.la \
+	libxon-serverxx.la
+
+xon_server_communicate_pipe_CXXFLAGS = $(AM_CXXFLAGS)
+
+##################################################################
 xon_server_speed_test_SOURCES = speed_server.cc
 xon_server_speed_test_LDADD = \
 	libxon-objectxx.la \
 	libxon-serverxx.la
 
 xon_server_speed_test_CXXFLAGS = $(AM_CXXFLAGS)
-
-##################################################################
-xon_server_preload_SOURCES = \
-	cookie.h cookie.cc \
-	subprocess.hh subprocess.cc \
-	preload_server.cc 
-
-xon_server_preload_CXXFLAGS = $(AM_CXXFLAGS)
 
 ##################################################################
 libxon_stdbuf_preload_la_SOURCES = \
@@ -664,15 +673,15 @@ clean-binPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+xon_server_communicate_pipe$(EXEEXT): $(xon_server_communicate_pipe_OBJECTS) $(xon_server_communicate_pipe_DEPENDENCIES) $(EXTRA_xon_server_communicate_pipe_DEPENDENCIES) 
+	@rm -f xon_server_communicate_pipe$(EXEEXT)
+	$(xon_server_communicate_pipe_LINK) $(xon_server_communicate_pipe_OBJECTS) $(xon_server_communicate_pipe_LDADD) $(LIBS)
 xon_server_exec_pipe$(EXEEXT): $(xon_server_exec_pipe_OBJECTS) $(xon_server_exec_pipe_DEPENDENCIES) $(EXTRA_xon_server_exec_pipe_DEPENDENCIES) 
 	@rm -f xon_server_exec_pipe$(EXEEXT)
 	$(xon_server_exec_pipe_LINK) $(xon_server_exec_pipe_OBJECTS) $(xon_server_exec_pipe_LDADD) $(LIBS)
 xon_server_mathlink$(EXEEXT): $(xon_server_mathlink_OBJECTS) $(xon_server_mathlink_DEPENDENCIES) $(EXTRA_xon_server_mathlink_DEPENDENCIES) 
 	@rm -f xon_server_mathlink$(EXEEXT)
 	$(xon_server_mathlink_LINK) $(xon_server_mathlink_OBJECTS) $(xon_server_mathlink_LDADD) $(LIBS)
-xon_server_preload$(EXEEXT): $(xon_server_preload_OBJECTS) $(xon_server_preload_DEPENDENCIES) $(EXTRA_xon_server_preload_DEPENDENCIES) 
-	@rm -f xon_server_preload$(EXEEXT)
-	$(xon_server_preload_LINK) $(xon_server_preload_OBJECTS) $(xon_server_preload_LDADD) $(LIBS)
 xon_server_speed_test$(EXEEXT): $(xon_server_speed_test_OBJECTS) $(xon_server_speed_test_DEPENDENCIES) $(EXTRA_xon_server_speed_test_DEPENDENCIES) 
 	@rm -f xon_server_speed_test$(EXEEXT)
 	$(xon_server_speed_test_LINK) $(xon_server_speed_test_OBJECTS) $(xon_server_speed_test_LDADD) $(LIBS)
@@ -701,6 +710,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libxon_serverxx_la-server.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libxon_serverxx_la-socket_comm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libxon_stdbuf_preload_la-stdbuf_preload.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_communicate_pipe-communicate_pipe.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_communicate_pipe-cookie.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_communicate_pipe-subprocess.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_exec_pipe-cookie.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_exec_pipe-exec_pipe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_exec_pipe-subprocess.Po@am__quote@
@@ -708,9 +720,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_mathlink-mathlink_interface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_mathlink-mathlink_server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_mathlink-subprocess.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_preload-cookie.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_preload-preload_server.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_preload-subprocess.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xon_server_speed_test-speed_server.Po@am__quote@
 
 .c.o:
@@ -881,6 +890,48 @@ libxon_stdbuf_preload_la-stdbuf_preload.lo: stdbuf_preload.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libxon_stdbuf_preload_la_CXXFLAGS) $(CXXFLAGS) -c -o libxon_stdbuf_preload_la-stdbuf_preload.lo `test -f 'stdbuf_preload.cc' || echo '$(srcdir)/'`stdbuf_preload.cc
 
+xon_server_communicate_pipe-cookie.o: cookie.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_communicate_pipe_CXXFLAGS) $(CXXFLAGS) -MT xon_server_communicate_pipe-cookie.o -MD -MP -MF $(DEPDIR)/xon_server_communicate_pipe-cookie.Tpo -c -o xon_server_communicate_pipe-cookie.o `test -f 'cookie.cc' || echo '$(srcdir)/'`cookie.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/xon_server_communicate_pipe-cookie.Tpo $(DEPDIR)/xon_server_communicate_pipe-cookie.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='cookie.cc' object='xon_server_communicate_pipe-cookie.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_communicate_pipe_CXXFLAGS) $(CXXFLAGS) -c -o xon_server_communicate_pipe-cookie.o `test -f 'cookie.cc' || echo '$(srcdir)/'`cookie.cc
+
+xon_server_communicate_pipe-cookie.obj: cookie.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_communicate_pipe_CXXFLAGS) $(CXXFLAGS) -MT xon_server_communicate_pipe-cookie.obj -MD -MP -MF $(DEPDIR)/xon_server_communicate_pipe-cookie.Tpo -c -o xon_server_communicate_pipe-cookie.obj `if test -f 'cookie.cc'; then $(CYGPATH_W) 'cookie.cc'; else $(CYGPATH_W) '$(srcdir)/cookie.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/xon_server_communicate_pipe-cookie.Tpo $(DEPDIR)/xon_server_communicate_pipe-cookie.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='cookie.cc' object='xon_server_communicate_pipe-cookie.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_communicate_pipe_CXXFLAGS) $(CXXFLAGS) -c -o xon_server_communicate_pipe-cookie.obj `if test -f 'cookie.cc'; then $(CYGPATH_W) 'cookie.cc'; else $(CYGPATH_W) '$(srcdir)/cookie.cc'; fi`
+
+xon_server_communicate_pipe-subprocess.o: subprocess.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_communicate_pipe_CXXFLAGS) $(CXXFLAGS) -MT xon_server_communicate_pipe-subprocess.o -MD -MP -MF $(DEPDIR)/xon_server_communicate_pipe-subprocess.Tpo -c -o xon_server_communicate_pipe-subprocess.o `test -f 'subprocess.cc' || echo '$(srcdir)/'`subprocess.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/xon_server_communicate_pipe-subprocess.Tpo $(DEPDIR)/xon_server_communicate_pipe-subprocess.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='subprocess.cc' object='xon_server_communicate_pipe-subprocess.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_communicate_pipe_CXXFLAGS) $(CXXFLAGS) -c -o xon_server_communicate_pipe-subprocess.o `test -f 'subprocess.cc' || echo '$(srcdir)/'`subprocess.cc
+
+xon_server_communicate_pipe-subprocess.obj: subprocess.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_communicate_pipe_CXXFLAGS) $(CXXFLAGS) -MT xon_server_communicate_pipe-subprocess.obj -MD -MP -MF $(DEPDIR)/xon_server_communicate_pipe-subprocess.Tpo -c -o xon_server_communicate_pipe-subprocess.obj `if test -f 'subprocess.cc'; then $(CYGPATH_W) 'subprocess.cc'; else $(CYGPATH_W) '$(srcdir)/subprocess.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/xon_server_communicate_pipe-subprocess.Tpo $(DEPDIR)/xon_server_communicate_pipe-subprocess.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='subprocess.cc' object='xon_server_communicate_pipe-subprocess.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_communicate_pipe_CXXFLAGS) $(CXXFLAGS) -c -o xon_server_communicate_pipe-subprocess.obj `if test -f 'subprocess.cc'; then $(CYGPATH_W) 'subprocess.cc'; else $(CYGPATH_W) '$(srcdir)/subprocess.cc'; fi`
+
+xon_server_communicate_pipe-communicate_pipe.o: communicate_pipe.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_communicate_pipe_CXXFLAGS) $(CXXFLAGS) -MT xon_server_communicate_pipe-communicate_pipe.o -MD -MP -MF $(DEPDIR)/xon_server_communicate_pipe-communicate_pipe.Tpo -c -o xon_server_communicate_pipe-communicate_pipe.o `test -f 'communicate_pipe.cc' || echo '$(srcdir)/'`communicate_pipe.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/xon_server_communicate_pipe-communicate_pipe.Tpo $(DEPDIR)/xon_server_communicate_pipe-communicate_pipe.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='communicate_pipe.cc' object='xon_server_communicate_pipe-communicate_pipe.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_communicate_pipe_CXXFLAGS) $(CXXFLAGS) -c -o xon_server_communicate_pipe-communicate_pipe.o `test -f 'communicate_pipe.cc' || echo '$(srcdir)/'`communicate_pipe.cc
+
+xon_server_communicate_pipe-communicate_pipe.obj: communicate_pipe.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_communicate_pipe_CXXFLAGS) $(CXXFLAGS) -MT xon_server_communicate_pipe-communicate_pipe.obj -MD -MP -MF $(DEPDIR)/xon_server_communicate_pipe-communicate_pipe.Tpo -c -o xon_server_communicate_pipe-communicate_pipe.obj `if test -f 'communicate_pipe.cc'; then $(CYGPATH_W) 'communicate_pipe.cc'; else $(CYGPATH_W) '$(srcdir)/communicate_pipe.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/xon_server_communicate_pipe-communicate_pipe.Tpo $(DEPDIR)/xon_server_communicate_pipe-communicate_pipe.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='communicate_pipe.cc' object='xon_server_communicate_pipe-communicate_pipe.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_communicate_pipe_CXXFLAGS) $(CXXFLAGS) -c -o xon_server_communicate_pipe-communicate_pipe.obj `if test -f 'communicate_pipe.cc'; then $(CYGPATH_W) 'communicate_pipe.cc'; else $(CYGPATH_W) '$(srcdir)/communicate_pipe.cc'; fi`
+
 xon_server_exec_pipe-subprocess.o: subprocess.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_exec_pipe_CXXFLAGS) $(CXXFLAGS) -MT xon_server_exec_pipe-subprocess.o -MD -MP -MF $(DEPDIR)/xon_server_exec_pipe-subprocess.Tpo -c -o xon_server_exec_pipe-subprocess.o `test -f 'subprocess.cc' || echo '$(srcdir)/'`subprocess.cc
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/xon_server_exec_pipe-subprocess.Tpo $(DEPDIR)/xon_server_exec_pipe-subprocess.Po
@@ -978,48 +1029,6 @@ xon_server_mathlink-mathlink_server.obj: mathlink_server.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='mathlink_server.cc' object='xon_server_mathlink-mathlink_server.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_mathlink_CXXFLAGS) $(CXXFLAGS) -c -o xon_server_mathlink-mathlink_server.obj `if test -f 'mathlink_server.cc'; then $(CYGPATH_W) 'mathlink_server.cc'; else $(CYGPATH_W) '$(srcdir)/mathlink_server.cc'; fi`
-
-xon_server_preload-cookie.o: cookie.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_preload_CXXFLAGS) $(CXXFLAGS) -MT xon_server_preload-cookie.o -MD -MP -MF $(DEPDIR)/xon_server_preload-cookie.Tpo -c -o xon_server_preload-cookie.o `test -f 'cookie.cc' || echo '$(srcdir)/'`cookie.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/xon_server_preload-cookie.Tpo $(DEPDIR)/xon_server_preload-cookie.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='cookie.cc' object='xon_server_preload-cookie.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_preload_CXXFLAGS) $(CXXFLAGS) -c -o xon_server_preload-cookie.o `test -f 'cookie.cc' || echo '$(srcdir)/'`cookie.cc
-
-xon_server_preload-cookie.obj: cookie.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_preload_CXXFLAGS) $(CXXFLAGS) -MT xon_server_preload-cookie.obj -MD -MP -MF $(DEPDIR)/xon_server_preload-cookie.Tpo -c -o xon_server_preload-cookie.obj `if test -f 'cookie.cc'; then $(CYGPATH_W) 'cookie.cc'; else $(CYGPATH_W) '$(srcdir)/cookie.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/xon_server_preload-cookie.Tpo $(DEPDIR)/xon_server_preload-cookie.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='cookie.cc' object='xon_server_preload-cookie.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_preload_CXXFLAGS) $(CXXFLAGS) -c -o xon_server_preload-cookie.obj `if test -f 'cookie.cc'; then $(CYGPATH_W) 'cookie.cc'; else $(CYGPATH_W) '$(srcdir)/cookie.cc'; fi`
-
-xon_server_preload-subprocess.o: subprocess.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_preload_CXXFLAGS) $(CXXFLAGS) -MT xon_server_preload-subprocess.o -MD -MP -MF $(DEPDIR)/xon_server_preload-subprocess.Tpo -c -o xon_server_preload-subprocess.o `test -f 'subprocess.cc' || echo '$(srcdir)/'`subprocess.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/xon_server_preload-subprocess.Tpo $(DEPDIR)/xon_server_preload-subprocess.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='subprocess.cc' object='xon_server_preload-subprocess.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_preload_CXXFLAGS) $(CXXFLAGS) -c -o xon_server_preload-subprocess.o `test -f 'subprocess.cc' || echo '$(srcdir)/'`subprocess.cc
-
-xon_server_preload-subprocess.obj: subprocess.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_preload_CXXFLAGS) $(CXXFLAGS) -MT xon_server_preload-subprocess.obj -MD -MP -MF $(DEPDIR)/xon_server_preload-subprocess.Tpo -c -o xon_server_preload-subprocess.obj `if test -f 'subprocess.cc'; then $(CYGPATH_W) 'subprocess.cc'; else $(CYGPATH_W) '$(srcdir)/subprocess.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/xon_server_preload-subprocess.Tpo $(DEPDIR)/xon_server_preload-subprocess.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='subprocess.cc' object='xon_server_preload-subprocess.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_preload_CXXFLAGS) $(CXXFLAGS) -c -o xon_server_preload-subprocess.obj `if test -f 'subprocess.cc'; then $(CYGPATH_W) 'subprocess.cc'; else $(CYGPATH_W) '$(srcdir)/subprocess.cc'; fi`
-
-xon_server_preload-preload_server.o: preload_server.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_preload_CXXFLAGS) $(CXXFLAGS) -MT xon_server_preload-preload_server.o -MD -MP -MF $(DEPDIR)/xon_server_preload-preload_server.Tpo -c -o xon_server_preload-preload_server.o `test -f 'preload_server.cc' || echo '$(srcdir)/'`preload_server.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/xon_server_preload-preload_server.Tpo $(DEPDIR)/xon_server_preload-preload_server.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='preload_server.cc' object='xon_server_preload-preload_server.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_preload_CXXFLAGS) $(CXXFLAGS) -c -o xon_server_preload-preload_server.o `test -f 'preload_server.cc' || echo '$(srcdir)/'`preload_server.cc
-
-xon_server_preload-preload_server.obj: preload_server.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_preload_CXXFLAGS) $(CXXFLAGS) -MT xon_server_preload-preload_server.obj -MD -MP -MF $(DEPDIR)/xon_server_preload-preload_server.Tpo -c -o xon_server_preload-preload_server.obj `if test -f 'preload_server.cc'; then $(CYGPATH_W) 'preload_server.cc'; else $(CYGPATH_W) '$(srcdir)/preload_server.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/xon_server_preload-preload_server.Tpo $(DEPDIR)/xon_server_preload-preload_server.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='preload_server.cc' object='xon_server_preload-preload_server.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_preload_CXXFLAGS) $(CXXFLAGS) -c -o xon_server_preload-preload_server.obj `if test -f 'preload_server.cc'; then $(CYGPATH_W) 'preload_server.cc'; else $(CYGPATH_W) '$(srcdir)/preload_server.cc'; fi`
 
 xon_server_speed_test-speed_server.o: speed_server.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xon_server_speed_test_CXXFLAGS) $(CXXFLAGS) -MT xon_server_speed_test-speed_server.o -MD -MP -MF $(DEPDIR)/xon_server_speed_test-speed_server.Tpo -c -o xon_server_speed_test-speed_server.o `test -f 'speed_server.cc' || echo '$(srcdir)/'`speed_server.cc

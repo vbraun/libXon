@@ -42,6 +42,31 @@ stick in a fflush() in there!
 EVIL HACK: we override C isatty/setbuf/... commands that are used to
 set and change the buffer. This we can do to a dynamically linked
 program via LD_PRELOAD.
+
+The screw_up_buffering() function demonstrates how things usually go
+wrong. It sets stdout into full buffer mode, so only chunks of 4096
+bytes are being written.
+
+    [vbraun@volker-desktop test]$ ./communicate_pipe_victim 
+    test
+    (stderr) no error
+    0123456789012345678901234567890123456789012345678901234567890123456789
+    (stderr) no error
+    ...
+    0123456789012345678901234567890123456789012345678901234567890123456789
+    (stderr) no error
+    Enter anything: (stdout) input is >>>test<<<
+    Enter anything: (stdout) input is >>>0123456789012345678901234567890123456789012345678901234567890123456789<<<
+
+The input prompt and normal output appear only later on in a big
+block. Preloading our library overrides setbuf() fixes this, and every
+newline is also flushing the buffer:
+
+    [vbraun@volker-desktop test]$ LD_PRELOAD=../src/.libs/libxon-stdbuf-preload.so ./communicate_pipe_victim
+    Enter anything: test
+    (stdout) input is >>>test<<<
+    (stderr) no error
+
    
 *********************************************************************/
 
@@ -58,6 +83,9 @@ void screw_up_buffering()
 
 void read_eval_write()
 {
+  const std::string prompt = "Enter anything: ";
+  fwrite(prompt.c_str(), 1, prompt.length()+1, stdout);
+  
   char ch[128];
   int matched = fscanf(stdin, "%127s", ch);
   if (matched != 1)

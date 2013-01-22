@@ -16,8 +16,14 @@
 
 #include "stdbuf_preload.hh"
 
-
 XON__EXTERN_C_BEGIN
+
+typedef int(*setvbuf_func)(FILE *stream, char *buf, int mode, size_t size);
+static setvbuf_func original_setvbuf;
+
+
+
+
 
 #define ORIGINAL(name) original_##name
 #define GET_ORIGINAL(ret, name, ...)                         \
@@ -43,10 +49,6 @@ int isatty(int fd)
 }
 
 
-
-typedef int(*setvbuf_func)(FILE *stream, char *buf, int mode, size_t size);
-
-static setvbuf_func original_setvbuf;
 
 
 EXPORTED_SYMBOL_CPP
@@ -88,12 +90,8 @@ int setvbuf(FILE *stream, char *buf, int mode, size_t size)
   return original_setvbuf(stream, buf, mode, size);
 }
 
-XON__EXTERN_C_END
 
 
-
-
-namespace xon {
 
 
 /*******************************************************
@@ -106,7 +104,7 @@ namespace xon {
 CONSTRUCTOR_CPP
 void init() 
 {
-  std::cerr << "preload init" << std::endl;
+  fprintf(stderr, "preload init\n");
   original_setvbuf = (setvbuf_func)dlsym(RTLD_NEXT, "setvbuf");
   if (original_setvbuf == NULL) {
     std::cerr << "Dynamically linking setvbuf() failed: " 
@@ -122,10 +120,10 @@ void init()
 DESTRUCTOR_CPP
 void fini() 
 {
-  std::cerr << "preload fini" << std::endl;
+  fprintf(stderr, "preload fini\n");
 }
 
 
 
 
-} // end namespace xon
+XON__EXTERN_C_END

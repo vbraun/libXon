@@ -1,3 +1,4 @@
+#include <cstdlib>
 
 #include "xon/object.hh"
 #include "xon/server.hh"
@@ -57,5 +58,5 @@ int main(int argc, const char *argv[])
     server.send(output);
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }

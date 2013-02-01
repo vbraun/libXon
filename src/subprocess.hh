@@ -19,6 +19,11 @@ class subprocess_pipe;
 class subprocess_factory;
 
 
+
+//! The factory for subprocesses
+/*  This class encapsulates all the information for starting a new
+ *  subprocess: command, arguments, environment.
+ */
 class subprocess_factory
 {
 private:
@@ -49,7 +54,10 @@ public:
 
 
 
-
+//! A simple subprocess
+/*  This is the base class for all subprocesses. It just runs a
+ *  subprocess.
+ */
 class subprocess
 {
 private:
@@ -76,6 +84,10 @@ public:
 };
 
 
+//! A subprocess filter (connected to input/output pipes)
+/*  This class implements a filter, it pipes fixed input trough the
+ *  subprocess and collects all of its output.
+ */
 class subprocess_pipe : public subprocess
 {
 private:
@@ -95,6 +107,19 @@ public:
   const std::string& stdout() const;
   const std::string& stderr() const;
 };
+
+
+
+//! A subprocess with continued input/output communication over pipes
+/*  This class implements a subprocess that is driven via pipes. So
+ *  you can send some input, get all the output up to some marker (the
+ *  subprocess input prompt), send some more input, get some more
+ *  output, etc. Usually that does not work because of buffering, but
+ *  we use a LD_PRELOAD hack (see stdbuf_preload.cc) to make it work.
+ */
+class subprocess_communicate : public subprocess_pipe
+{
+}
 
 
 
